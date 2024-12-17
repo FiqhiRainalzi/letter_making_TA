@@ -4,8 +4,9 @@
         <h1>Surat HKI</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}">Home</a></li>
                 <li class="breadcrumb-item active">HKI</li>
+                <li class="breadcrumb-item active">Membuat Surat HKI</li>
             </ol>
         </nav>
     </div><!-- End Page Title -->
@@ -15,11 +16,16 @@
                 <div class="card border-0 shadow-sm rounded">
                     <div class="card-body">
                         <form action="{{ route('hki.store') }}" method="POST" enctype="multipart/form-data">
+                            <a href="{{ url()->previous() }}" class="btn btn-dark mb-3 mt-3">
+                                <i class="bi bi-arrow-left"></i> Kembali
+                            </a>
                             @csrf
+                            {{-- nama pemegang hak --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Nama Pemegang Hak</label>
                                 <input type="text" class="form-control @error('namaPemHki') is-invalid @enderror"
-                                    name="namaPemHki" value="" placeholder="Masukkan Nama Pemegang hak">
+                                    name="namaPemHki" value="{{ old('namaPemHki') }}"
+                                    placeholder="Masukkan Nama Pemegang hak">
 
                                 <!-- error message untuk title -->
                                 @error('namaPemHki')
@@ -28,11 +34,11 @@
                                     </div>
                                 @enderror
                             </div>
-
+                            {{-- alamat --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Alamat Pemegang Hak</label>
-                                <textarea class="form-control @error('alamatPemHki') is-invalid @enderror" name="alamatPemHki"
-                                    rows="5" placeholder="Masukkan Alamat Pemegang Hak">{{ old('alamatPemHki') }}</textarea>
+                                <textarea class="form-control @error('alamatPemHki') is-invalid @enderror" name="alamatPemHki" rows="5"
+                                    placeholder="Masukkan Alamat Pemegang Hak">{{ old('alamatPemHki') }}</textarea>
                                 <!-- error message untuk alamatPemHki -->
                                 @error('alamatPemHki')
                                     <div class="alert alert-danger mt-2">
@@ -41,6 +47,7 @@
                                 @enderror
 
                             </div>
+                            {{-- judul --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Judul Invensi</label>
                                 <input type="text" class="form-control @error('judulInvensi') is-invalid @enderror"
@@ -54,51 +61,57 @@
                                     </div>
                                 @enderror
                             </div>
-
+                            {{-- inventors --}}
                             <div id="inventor-fields">
-                                <div class="row inventor-row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label class="font-weight-bold">Nama Inventor 1</label>
-                                            <input type="text"
-                                                class="form-control @error('namaInventor1') is-invalid @enderror"
-                                                name="namaInventor1" value="{{ old('namaInventor1') }}"
-                                                placeholder="Masukkan Nama Inventor">
-
-                                            <!-- error message untuk nama_inventor -->
-                                            @error('namaInventor1')
-                                                <div class="alert alert-danger mt-2">
-                                                    {{ $message }}
+                                @if (old('inventors'))
+                                    @foreach (old('inventors') as $index => $inventor)
+                                        <div class="row inventor-row">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="font-weight-bold">Nama Inventor</label>
+                                                    <input value="{{ $inventor['nama'] }}" type="text"
+                                                        class="form-control" name="inventors[{{ $index }}][nama]"
+                                                        placeholder="Masukkan Nama Inventor">
                                                 </div>
-                                            @enderror
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="font-weight-bold">Bidang Studi</label>
+                                                    <input value="{{ $inventor['bidang_studi'] }}" type="text"
+                                                        class="form-control"
+                                                        name="inventors[{{ $index }}][bidang_studi]"
+                                                        placeholder="Masukkan Bidang Studi">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <!-- Field default jika old() kosong -->
+                                    <div class="row inventor-row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="font-weight-bold">Nama Inventor</label>
+                                                <input value="" type="text" class="form-control"
+                                                    name="inventors[0][nama]" placeholder="Masukkan Nama Inventor">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="font-weight-bold">Bidang Studi</label>
+                                                <input value="" type="text" class="form-control"
+                                                    name="inventors[0][bidang_studi]" placeholder="Masukkan Bidang Studi">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label class="font-weight-bold">Bidang Studi</label>
-                                            <input type="text"
-                                                class="form-control @error('bidangStudi1') is-invalid @enderror"
-                                                name="bidangStudi1" value="{{ old('bidangStudi1') }}"
-                                                placeholder="Masukkan Bidang Studi">
-
-                                            <!-- error message untuk bidang_studi -->
-                                            @error('bidangStudi1')
-                                                <div class="alert alert-danger mt-2">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
+                                @endif
                             </div>
 
                             <button type="button" class="btn btn-success mb-3" id="add-inventor-btn">Tambah
                                 Inventor</button>
-
+                            {{-- tanggal --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Tanggal Pembuatan</label>
-                                <input type="date"
-                                    class="form-control @error('tanggalPemHki') is-invalid @enderror"
+                                <input type="date" class="form-control @error('tanggalPemHki') is-invalid @enderror"
                                     name="tanggalPemHki" rows="5"
                                     value="{{ old('tanggalPemHki', $today ?? date('Y-m-d')) }}"
                                     placeholder="Masukkan Alamat Pemegang Hak">
@@ -121,40 +134,43 @@
     </div>
 
     <script>
-        let inventorCount = 1; // Start with one inventor field set
-        const maxInventors = 8; // Set the maximum number of inventors
+        let inventorIndex = 1; // Indeks awal
+        const maxInventors = 10; // Batas maksimal penambahan
 
         document.getElementById('add-inventor-btn').addEventListener('click', function() {
-            if (inventorCount < maxInventors) {
-                inventorCount++;
+            // Periksa apakah sudah mencapai batas maksimal
+            if (inventorIndex >= maxInventors) {
+                alert("Maksimal hanya dapat menambahkan 10 inventor.");
+                return;
+            }
 
-                // Create a new row for the inventor and bidang studi
-                let newRow = document.createElement('div');
-                newRow.classList.add('row', 'inventor-row');
+            let newRow = document.createElement('div');
+            newRow.classList.add('row', 'inventor-row');
 
-                newRow.innerHTML = `
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label class="font-weight-bold">Nama Inventor ${inventorCount}</label>
-                            <input type="text" class="form-control" name="namaInventor${inventorCount}" placeholder="Masukkan Nama Inventor">
-                        </div>
+            newRow.innerHTML = `
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Nama Inventor</label>
+                        <input type="text" class="form-control" name="inventors[${inventorIndex}][nama]" placeholder="Masukkan Nama Inventor">
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label class="font-weight-bold">Bidang Studi</label>
-                            <input type="text" class="form-control" name="bidangStudi${inventorCount}" placeholder="Masukkan Bidang Studi">
-                        </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Bidang Studi</label>
+                        <input type="text" class="form-control" name="inventors[${inventorIndex}][bidang_studi]" placeholder="Masukkan Bidang Studi">
                     </div>
-                `;
+                </div>
+            `;
 
-                // Append the new row to the inventor fields
-                document.getElementById('inventor-fields').appendChild(newRow);
+            document.getElementById('inventor-fields').appendChild(newRow);
+            inventorIndex++;
 
-                // If we reach the max limit, disable the "Tambah Inventor" button
-                if (inventorCount === maxInventors) {
-                    document.getElementById('add-inventor-btn').disabled = true;
-                }
+            // Nonaktifkan tombol jika sudah mencapai batas
+            if (inventorIndex >= maxInventors) {
+                alert("Anda sudah mencapai batas maksimal 10 inventor. Tidak bisa menambah lagi.");
+                document.getElementById('add-inventor-btn').disabled = true;
             }
         });
     </script>
+
 @endsection

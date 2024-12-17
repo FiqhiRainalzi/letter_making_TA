@@ -4,16 +4,16 @@
         <h1>Surat HKI</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}">Home</a></li>
                 <li class="breadcrumb-item active">Surat HKI</li>
+                <li class="breadcrumb-item active">Preview Surat HKI</li>
             </ol>
         </nav>
     </div><!-- End Page Title -->
-<style>
+    <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
         }
 
         .container {
@@ -22,7 +22,9 @@
             padding: 20px;
             position: relative;
         }
+
         .content {
+            font-family: 'Times New Roman', Times, serif;
             width: 100%;
             max-width: 700px;
             margin: 0 auto;
@@ -112,9 +114,11 @@
             }
         }
     </style>
+
     <body>
-            <a href="{{ route('hki.cetak', $hki->id) }}">Cetak PDF</a>
-            <a href="{{ route('hki.downloadWord', $hki->id) }}">Download Word</a>
+        <a href="{{ url()->previous() }}" class="btn btn-dark mb-3 mt-3">
+            <i class="bi bi-arrow-left"></i> Kembali
+        </a>
         <div class="container">
             <div class="content">
                 <p style="margin-top:0pt; margin-bottom:0pt; line-height:normal;">
@@ -123,8 +127,11 @@
                             src="{{ asset('copsurat.png') }}" alt="">
                     </span>&nbsp;
                 </p>
-                <p style="margin-top: 3cm" class="center-text"><strong><em><u>SURAT KETERANGAN PERMOHONAN HKI</u></em></strong></p>
-                <p class="center-text">Nomor : 738 /PL43. P01/2023</p>
+                <p style="margin-top: 3cm" class="center-text"><strong><em><u>SURAT KETERANGAN PERMOHONAN
+                                HKI</u></em></strong></p>
+                <p class="center-text">Nomor :
+                    {{ $hki->nomorSurat ?: '-' }}/{{ \Carbon\Carbon::parse($hki->tanggalPemHki)->translatedFormat('Y') }}
+                </p>
                 <p class="center-text">&nbsp;</p>
                 <p>Yang bertandatangan di bawah ini;</p>
                 <table class="info-table">
@@ -171,43 +178,22 @@
                         <td>:</td>
                         <td colspan="3">
                             <table class="inventor-list">
-                                <tr>
-                                    <td>1.</td>
-                                    <td>{{ $hki->namaInventor1 }}</td>
-                                    <td>{{ $hki->bidangStudi1 }}</td>
-                                </tr>
-                                <tr>
-                                    <td>2.</td>
-                                    <td>{{ $hki->namaInventor2 }}</td>
-                                    <td>{{ $hki->bidangStudi2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td>3.</td>
-                                    <td>{{ $hki->namaInventor3 }}</td>
-                                    <td>{{ $hki->bidangStudi3 }}</td>
-                                </tr>
-                                <tr>
-                                    <td>4.</td>
-                                    <td>{{ $hki->namaInventor4 }}</td>
-                                    <td>{{ $hki->bidangStudi4 }}</td>
-                                </tr>
-                                <tr>
-                                    <td>5.</td>
-                                    <td>{{ $hki->namaInventor5 }}</td>
-                                    <td>{{ $hki->bidangStudi5 }}</td>
-                                </tr>
-                                <tr>
-                                    <td>6.</td>
-                                    <td>{{ $hki->namaInventor6 }}</td>
-                                    <td>{{ $hki->bidangStudi6 }}</td>
-                                </tr>
+                                @foreach ($hki->inventors as $index => $inventor)
+                                    <tr>
+                                        <td>{{ $index + 1 }}.</td>
+                                        <td>{{ $inventor->nama }}</td>
+                                        <td>{{ $inventor->bidang_studi }}</td>
+                                    </tr>
+                                @endforeach
                             </table>
                         </td>
                     </tr>
+
                 </table>
                 <p class="justify-text">Telah mengajukan atas permohonan <strong>Hak Cipta</strong> pada Direktorat Jenderal
                     Hak Kekayaan Intelektual Kementerian Hukum Dan Hak Asasi Manusia. Demikian Surat Keterangan Permohonan
-                    <em>HKI</em> dibuat, untuk digunakan sebagaimana mestinya.</p>
+                    <em>HKI</em> dibuat, untuk digunakan sebagaimana mestinya.
+                </p>
                 <div style="float: right; text-align: right;">
                     <p class="signature">Cilacap,
                         <strong>{{ \Carbon\Carbon::parse($hki->tanggalPemHki)->translatedFormat('d F Y') }}</strong><br>Kepala

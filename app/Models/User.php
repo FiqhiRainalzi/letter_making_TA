@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Hki; 
+use App\Models\Ketpub; 
+use App\Models\Penelitian; 
+use App\Models\Pkm; 
+use App\Models\Tugaspub; 
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
@@ -20,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -41,7 +47,31 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password' => 'hashed', 
         ];
+    }
+
+    public function hkis() {
+        return $this->hasMany(Hki::class);
+    }
+    
+    public function ketpubs(){
+        return $this->hasMany(Ketpub::class);
+    }
+
+    public function penelitians(){
+        return $this->hasMany(Penelitian::class);
+    }
+
+    public function pkms(){
+        return $this->hasMany(Pkm::class);
+    }
+
+    public function tugaspubs(){
+        return $this->hasMany(Tugaspub::class);
+    }
+ 
+    public function notifications(){
+        return $this->hasMany(Notification::class);
     }
 }
