@@ -175,7 +175,7 @@
                         @endforeach
                     </tbody>
                 </table>
-                <p class="justify-text">Untuk melaksanakan publikasi artikel ilmiah pada <strong>Jurnal Nasional</strong>,
+                <p class="justify-text">Untuk melaksanakan publikasi artikel ilmiah pada <strong>{{ $tugaspub->kategori_jurnal }}</strong>,
                     dengan keterangan sebagai berikut:
                 </p>
 

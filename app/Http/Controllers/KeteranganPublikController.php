@@ -38,28 +38,26 @@ class KeteranganPublikController extends BaseController
     public function store(Request $request)
     {
         $request->validate([
+            'kategori_publikasi' => 'required',
             'judul'         => 'required',
             'namaPenerbit'  => 'required|min:5',
             'penerbit'      => 'required|min:5',
-            'volume'        => 'required',
-            'nomor'         => 'required',
             'bulan'         => 'required',
             'tahun'         => 'required',
-            'akreditas'     => 'required|min:5',
             'issn'          => 'required|min:5',
         ]);
 
         $user = Auth::user();
 
         $ketpub = Ketpub::create([
+            'kategori_publikasi'    => $request->kategori_publikasi,
             'judul'          => $request->judul,
             'namaPenerbit'   => $request->namaPenerbit,
             'penerbit'       => $request->penerbit,
-            'volume'         => $request->volume,
-            'nomor'          => $request->nomor,
+            'jilid'         => $request->jilid,
+            'edisi'          => $request->nomor,
             'bulan'          => $request->bulan,
             'tahun'          => $request->tahun,
-            'akreditas'      => $request->akreditas,
             'issn'           => $request->issn,
             'tanggal'        => $request->tanggal,
             'statusSurat'        => 'pending',
@@ -80,10 +78,11 @@ class KeteranganPublikController extends BaseController
         }
         // Menambahkan Penulis (Validasi untuk mengabaikan input kosong)
         foreach ($request->penulis as $penulis) {
-            if (!empty($penulis['nama'])) { // Hanya proses jika nama tidak kosong
+            if (!empty($penulis['nama']) && !empty($penulis['prodi'])) {
                 Penulis::create([
                     'ketpub_id' => $ketpub->id,
                     'nama' => $penulis['nama'],
+                    'jurusan_prodi' => $penulis['prodi'],
                 ]);
             }
         }
@@ -127,14 +126,12 @@ class KeteranganPublikController extends BaseController
     {
         // Validasi request
         $request->validate([
+            'kategori_publikasi'         => 'required',
             'judul'         => 'required',
             'namaPenerbit'  => 'required|min:5',
             'penerbit'      => 'required|min:5',
-            'volume'        => 'required',
-            'nomor'         => 'required',
             'bulan'         => 'required',
             'tahun'         => 'required',
-            'akreditas'     => 'required|min:5',
             'issn'          => 'required|min:5',
         ]);
 
@@ -143,12 +140,17 @@ class KeteranganPublikController extends BaseController
         // Hapus penulis lama
         $ketpub->penulis()->delete();
 
-        // Tambahkan penulis baru
+        // Perbarui penulis jika ada
         if ($request->has('penulis')) {
+            // Hapus data penulis lama
+            $ketpub->penulis()->delete();
+
+            // Simpan data penulis baru
             foreach ($request->penulis as $penulis) {
-                if (!empty($penulis['nama'])) { // Cek jika nama penulis tidak kosong
+                if (!empty($penulis['nama']) && !empty($penulis['prodi'])) {
                     $ketpub->penulis()->create([
                         'nama' => $penulis['nama'],
+                        'jurusan_prodi' => $penulis['prodi'],
                     ]);
                 }
             }
@@ -156,14 +158,14 @@ class KeteranganPublikController extends BaseController
 
         // Update data ketpub
         $ketpub->update([
+            'kategori_publikasi' => $request->kategori_publikasi,
             'judul' => $request->judul,
             'namaPenerbit' => $request->namaPenerbit,
             'penerbit' => $request->penerbit,
-            'volume' => $request->volume,
-            'nomor' => $request->nomor,
+            'jilid' => $request->jilid,
+            'edisi' => $request->edisi,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
-            'akreditas' => $request->akreditas,
             'issn' => $request->issn,
         ]);
 
@@ -192,12 +194,13 @@ class KeteranganPublikController extends BaseController
         $year = Carbon::parse($ketpub->tanggal)->translatedFormat('Y');
 
         $phpWord->setValues([
-            'nomorSurat' => $ketpub->nomorSurat?: '-',
+            'nomorSurat' => $ketpub->nomorSurat ?: '-',
+            'kategori_publikasi'          => $ketpub->kategori_publikasi,
             'judul'          => $ketpub->judul,
             'namaPenerbit'   => $ketpub->namaPenerbit,
             'penerbit'       => $ketpub->penerbit,
-            'volume'         => $ketpub->volume,
-            'nomor'          => $ketpub->nomor,
+            'jilid'         => $ketpub->jilid,
+            'edisi'          => $ketpub->edisi,
             'bulan'          => $ketpub->bulan,
             'tahun'          => $ketpub->tahun,
             'akreditas'      => $ketpub->akreditas,
@@ -217,6 +220,7 @@ class KeteranganPublikController extends BaseController
 
             $phpWord->setValue("no#{$row}", $row);
             $phpWord->setValue("namaPenulis#{$row}", $penulis->nama ?: '-');
+            $phpWord->setValue("jurusanProdi#{$row}", $penulis->jurusan_prodi ?: '-');
         }
 
         $fileName = 'Surat_Keterangan_Publik_' . $ketpub->penulis1 . '.docx';

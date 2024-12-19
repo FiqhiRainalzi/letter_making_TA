@@ -22,32 +22,101 @@
                             </a>
                             @method('PUT')
                             @csrf
+                            {{-- kategori jurnal --}}
                             <div class="form-group mb-3">
-                                <label class="font-weight-bold">Nama Publikasi</label>
-                                <input type="text" class="form-control @error('namaPublikasi') is-invalid @enderror"
-                                    name="namaPublikasi" value="{{ old('namaPublikasi', $tugaspub->namaPublikasi) }}"
-                                    placeholder="Masukkan Nama Publikasi">
-
-                                <!-- error message untuk title -->
-                                @error('namaPublikasi')
+                                <label class="font-weight-bold">Kategori Jurnal</label>
+                                <select class="form-control @error('kategori_jurnal') is-invalid @enderror"
+                                    id="kategori_jurnal" name="kategori_jurnal">
+                                    <option value="" disabled
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == '' ? 'selected' : '' }}>
+                                        Pilih Kategori Jurnal
+                                    </option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 1"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Jurnal Nasional Terakreditasi Sinta 1' ? 'selected' : '' }}>
+                                        Jurnal Nasional Terakreditasi Sinta 1
+                                    </option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 2"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Jurnal Nasional Terakreditasi Sinta 2' ? 'selected' : '' }}>
+                                        Jurnal Nasional Terakreditasi Sinta 2
+                                    </option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 3"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Jurnal Nasional Terakreditasi Sinta 3' ? 'selected' : '' }}>
+                                        Jurnal Nasional Terakreditasi Sinta 3
+                                    </option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 4"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Jurnal Nasional Terakreditasi Sinta 4' ? 'selected' : '' }}>
+                                        Jurnal Nasional Terakreditasi Sinta 4
+                                    </option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 5"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Jurnal Nasional Terakreditasi Sinta 5' ? 'selected' : '' }}>
+                                        Jurnal Nasional Terakreditasi Sinta 5
+                                    </option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 6"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Jurnal Nasional Terakreditasi Sinta 6' ? 'selected' : '' }}>
+                                        Jurnal Nasional Terakreditasi Sinta 6
+                                    </option>
+                                    <option value="Jurnal Tidak Terakreditasi"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Jurnal Tidak Terakreditasi' ? 'selected' : '' }}>
+                                        Jurnal Tidak Terakreditasi
+                                    </option>
+                                    <option value="Jurnal Internasional Bereputasi"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Jurnal Internasional Bereputasi' ? 'selected' : '' }}>
+                                        Jurnal Internasional Bereputasi
+                                    </option>
+                                    <option value="Jurnal Internasional Tidak Bereputasi"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Jurnal Internasional Tidak Bereputasi' ? 'selected' : '' }}>
+                                        Jurnal Internasional Tidak Bereputasi
+                                    </option>
+                                    <option value="Seminar Internasional"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Seminar Internasional' ? 'selected' : '' }}>
+                                        Seminar Internasional
+                                    </option>
+                                    <option value="Seminar Nasional"
+                                        {{ old('kategori_jurnal', $tugaspub->kategori_jurnal ?? '') == 'Seminar Nasional' ? 'selected' : '' }}>
+                                        Seminar Nasional
+                                    </option>
+                                </select>
+                                <!-- error message untuk kategori_jurnal -->
+                                @error('kategori_jurnal')
                                     <div class="alert alert-danger mt-2">
                                         {{ $message }}
                                     </div>
                                 @enderror
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Penerbit</label>
-                                <input type="text" class="form-control @error('penerbit') is-invalid @enderror"
-                                    name="penerbit" value="{{ old('penerbit', $tugaspub->penerbit) }}"
-                                    placeholder="Masukkan Nama Penerbit">
+                            <div class="row">
+                                <div class="col md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Nama Publikasi</label>
+                                        <input type="text"
+                                            class="form-control @error('namaPublikasi') is-invalid @enderror"
+                                            name="namaPublikasi"
+                                            value="{{ old('namaPublikasi', $tugaspub->namaPublikasi) }}"
+                                            placeholder="Masukkan Nama Publikasi">
 
-                                <!-- error message untuk title -->
-                                @error('penerbit')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
+                                        <!-- error message untuk title -->
+                                        @error('namaPublikasi')
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
                                     </div>
-                                @enderror
+                                </div>
+                                <div class="col md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Penerbit</label>
+                                        <input type="text" class="form-control @error('penerbit') is-invalid @enderror"
+                                            name="penerbit" value="{{ old('penerbit', $tugaspub->penerbit) }}"
+                                            placeholder="Masukkan Nama Penerbit">
+
+                                        <!-- error message untuk title -->
+                                        @error('penerbit')
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group mb-3">
@@ -123,13 +192,12 @@
                                         @enderror
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row inventor-row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label class="font-weight-bold">Terakreditas</label>
-                                        <input type="text" class="form-control @error('akreditas') is-invalid @enderror"
-                                            name="akreditas" value="{{ old('akreditas', $tugaspub->akreditas) }}"
+                                        <input type="text"
+                                            class="form-control @error('akreditas') is-invalid @enderror" name="akreditas"
+                                            value="{{ old('akreditas', $tugaspub->akreditas) }}"
                                             placeholder="Masukkan Akreditas">
 
                                         <!-- error message untuk akreditas -->

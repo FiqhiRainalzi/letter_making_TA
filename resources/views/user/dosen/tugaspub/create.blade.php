@@ -20,31 +20,72 @@
                                 <i class="bi bi-arrow-left"></i> Kembali
                             </a>
                             @csrf
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Nama Publikasi</label>
-                                <input type="text" class="form-control @error('namaPublikasi') is-invalid @enderror"
-                                    name="namaPublikasi" value="{{ old('namaPublikasi') }}"
-                                    placeholder="Masukkan Nama Publikasi">
 
-                                <!-- error message untuk title -->
-                                @error('namaPublikasi')
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Kategori Jurnal</label>
+                                <select class="form-control @error('kategori_jurnal') is-invalid @enderror"
+                                    id="kategori_jurnal" name="kategori_jurnal">
+                                    <option value="" disabled selected>Pilih Kategori Jurnal</option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 1">Jurnal Nasional Terakreditasi
+                                        Sinta 1</option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 2">Jurnal Nasional Terakreditasi
+                                        Sinta 2</option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 3">Jurnal Nasional Terakreditasi
+                                        Sinta 3</option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 4">Jurnal Nasional Terakreditasi
+                                        Sinta 4</option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 5">Jurnal Nasional Terakreditasi
+                                        Sinta 5</option>
+                                    <option value="Jurnal Nasional Terakreditasi Sinta 6">Jurnal Nasional Terakreditasi
+                                        Sinta 6</option>
+                                    <option value="Jurnal Tidak Terakreditasi">Jurnal Tidak Terakreditasi</option>
+                                    <option value="Jurnal Internasional Bereputasi">Jurnal Internasional Bereputasi</option>
+                                    <option value="Jurnal Internasional Tidak Bereputasi">Jurnal Internasional Tidak
+                                        Bereputasi
+                                    </option>
+                                    <option value="Seminar Internasional">Seminar Internasional</option>
+                                    <option value="Seminar Nasional">Seminar Nasional</option>
+                                </select>
+                                <!-- error message untuk kategori_jurnal -->
+                                @error('kategori_jurnal')
                                     <div class="alert alert-danger mt-2">
                                         {{ $message }}
                                     </div>
                                 @enderror
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Penerbit</label>
-                                <input type="text" class="form-control @error('penerbit') is-invalid @enderror"
-                                    name="penerbit" value="{{ old('penerbit') }}" placeholder="Masukkan Nama Penerbit">
+                            <div class="row">
+                                <div class="col md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Nama Publikasi</label>
+                                        <input type="text"
+                                            class="form-control @error('namaPublikasi') is-invalid @enderror"
+                                            name="namaPublikasi" value="{{ old('namaPublikasi') }}"
+                                            placeholder="Masukkan Nama Publikasi">
 
-                                <!-- error message untuk title -->
-                                @error('penerbit')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
+                                        <!-- error message untuk title -->
+                                        @error('namaPublikasi')
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
                                     </div>
-                                @enderror
+                                </div>
+                                <div class="col md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Penerbit</label>
+                                        <input type="text" class="form-control @error('penerbit') is-invalid @enderror"
+                                            name="penerbit" value="{{ old('penerbit') }}"
+                                            placeholder="Masukkan Nama Penerbit">
+
+                                        <!-- error message untuk title -->
+                                        @error('penerbit')
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group mb-3">
@@ -103,6 +144,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="row inventor-row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
@@ -119,14 +161,12 @@
                                         @enderror
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row inventor-row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label class="font-weight-bold">Terakreditas</label>
-                                        <input type="text" class="form-control @error('akreditas') is-invalid @enderror"
-                                            name="akreditas" value="{{ old('akreditas') }}"
-                                            placeholder="Masukkan Akreditas">
+                                        <input type="text"
+                                            class="form-control @error('akreditas') is-invalid @enderror" name="akreditas"
+                                            value="{{ old('akreditas') }}" placeholder="Masukkan Akreditas">
 
                                         <!-- error message untuk akreditas -->
                                         @error('akreditas')
@@ -137,6 +177,7 @@
                                     </div>
                                 </div>
                             </div>
+                            
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">ISSN/ISBN</label>
                                 <input type="text" class="form-control @error('issn') is-invalid @enderror"

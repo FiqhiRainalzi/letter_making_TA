@@ -165,7 +165,7 @@
                         <td>Kepala Pusat Penelitian dan Pengabdian kepada Masyarakat</td>
                     </tr>
                 </table>
-                <p>Dengan ini menerangkan bahwa artikel ilmiah dibawah ini; </p>
+                <p>Dengan ini menerangkan bahwa {{ $ketpub->kategori_publikasi }} dibawah ini; </p>
 
                 <table class="info-table">
                     <tr>
@@ -184,19 +184,14 @@
                         <td>{{ $ketpub->penerbit }}</td>
                     </tr>
                     <tr>
-                        <td>Volume dan Nomor</td>
+                        <td>Jilid atau Edisi</td>
                         <td>:</td>
-                        <td>{{ $ketpub->volume }} ({{ $ketpub->nomor }})</td>
+                        <td>Jilid : {{ $ketpub->jilid }} / Edisi : {{ $ketpub->edisi }}</td>
                     </tr>
                     <tr>
                         <td>Bulan</td>
                         <td>:</td>
                         <td>{{ $ketpub->bulan }}</td>
-                    </tr>
-                    <tr>
-                        <td>Terakreditas</td>
-                        <td>:</td>
-                        <td>{{ $ketpub->akreditas }}</td>
                     </tr>
                     <tr>
                         <td>ISSN/ISBN</td>
@@ -209,13 +204,14 @@
                         <td>{{ $ketpub->tahun }}</td>
                     </tr>
                 </table>
-                <p>Merupakan artikel ilmiah yang telah ditulis dan dipublikasikan oleh; </p>
+                <p>Merupakan {{ $ketpub->kategori_publikasi }} yang telah ditulis dan dipublikasikan oleh; </p>
                 <table class="info-table">
                     @foreach ($ketpub->penulis as $index => $penulis)
                         <tr>
                             <td style="width: 25%">Nama Penulis {{ $index + 1 }}</td>
                             <td style="width: 3%">:</td>
                             <td>{{ $penulis->nama }}</td>
+                            <td>{{ $penulis->jurusan_prodi }}</td>
                         </tr>
                     @endforeach
                 </table>

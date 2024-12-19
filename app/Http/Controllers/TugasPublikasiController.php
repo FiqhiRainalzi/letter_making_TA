@@ -39,6 +39,7 @@ class TugasPublikasiController extends BaseController
     {
         $request->validate([
             'namaPublikasi' => 'required',
+            'kategori_jurnal' => 'required',
             'penerbit' => 'required',
             'alamat' => 'required',
             'link' => 'required',
@@ -54,6 +55,7 @@ class TugasPublikasiController extends BaseController
 
         $tugaspub = Tugaspub::create([
             'namaPublikasi' => $request->namaPublikasi,
+            'kategori_jurnal' => $request->kategori_jurnal,
             'penerbit' => $request->penerbit,
             'alamat' => $request->alamat,
             'link' => $request->link,
@@ -130,6 +132,7 @@ class TugasPublikasiController extends BaseController
     {
         $request->validate([
             'namaPublikasi' => 'required|string',
+            'kategori_jurnal' => 'required',
             'penerbit' => 'required|string',
             'alamat' => 'required|string',
             'link' => 'required|url',
@@ -147,6 +150,7 @@ class TugasPublikasiController extends BaseController
         // Update data utama
         $tugaspub->update([
             'namaPublikasi' => $request->namaPublikasi,
+            'kategori_jurnal' => $request->kategori_jurnal,
             'penerbit' => $request->penerbit,
             'alamat' => $request->alamat,
             'link' => $request->link,
@@ -198,8 +202,9 @@ class TugasPublikasiController extends BaseController
         $year = Carbon::parse($tugaspub->tanggal)->translatedFormat('Y');
 
         $phpWord->setValues([
-            'nomorSurat' => $tugaspub->nomorSurat?: '-',
+            'nomorSurat' => $tugaspub->nomorSurat ?: '-',
             'namaPublikasi' => $tugaspub->namaPublikasi,
+            'kategori_jurnal' => $tugaspub->kategori_jurnal,
             'penerbit' => $tugaspub->penerbit,
             'alamat' => $tugaspub->alamat,
             'link' => $tugaspub->link,

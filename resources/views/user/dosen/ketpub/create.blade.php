@@ -20,6 +20,35 @@
                                 <i class="bi bi-arrow-left"></i> Kembali
                             </a>
                             @csrf
+
+                            {{-- kategori_publikasi --}}
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Kategori Publikasi Akademik</label>
+                                <select class="form-control @error('kategori_publikasi') is-invalid @enderror"
+                                    id="kategori_publikasi" name="kategori_publikasi">
+                                    <option value="" disabled selected>Pilih Kategori Publikasi</option>
+                                    <option value="Artikel Ilmiah">Artikel Ilmiah</option>
+                                    <option value="Bahan Ajar">Bahan Ajar</option>
+                                    <option value="Monografi">Monografi</option>
+                                    <option value="Buku Referensi">Buku Referensi</option>
+                                    <option value="Prosiding">Prosiding</option>
+                                    <option value="Laporan Penelitian">Laporan Penelitian</option>
+                                    <option value="Review Artikel">Review Artikel</option>
+                                    <option value="Bab Buku">Bab Buku</option>
+                                    <option value="Modul Pembelajaran">Modul Pembelajaran</option>
+                                    <option value="Karya Ilmiah Populer">Karya Ilmiah Populer</option>
+                                    <option value="Manual atau Panduan Teknis">Manual atau Panduan Teknis</option>
+                                    <option value="Hak Kekayaan Intelektual (HKI)">Hak Kekayaan Intelektual (HKI)</option>
+                                </select>
+
+                                <!-- error message untuk kategori_publikasi -->
+                                @error('kategori_publikasi')
+                                    <div class="alert alert-danger mt-2">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
                             {{-- judul --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Judul</label>
@@ -60,17 +89,16 @@
                                     </div>
                                 @enderror
                             </div>
-                            {{-- volume dan nomor --}}
+                            {{-- Jidil atau edisi --}}
                             <div class="row inventor-row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label class="font-weight-bold">Volume</label>
-                                        <input type="number" class="form-control @error('volume') is-invalid @enderror"
-                                            name="volume" value="{{ old('volume') }}"
-                                            placeholder="Masukkan Volume Artikel">
+                                        <label class="font-weight-bold">Jilid</label>
+                                        <input type="number" class="form-control @error('jilid') is-invalid @enderror"
+                                            name="jilid" value="{{ old('jilid') }}" placeholder="Masukkan Jilid">
 
                                         <!-- error message untuk nama_inventor -->
-                                        @error('volume')
+                                        @error('jilid')
                                             <div class="alert alert-danger mt-2">
                                                 {{ $message }}
                                             </div>
@@ -79,12 +107,12 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label class="font-weight-bold">Nomor</label>
-                                        <input type="number" class="form-control @error('nomor') is-invalid @enderror"
-                                            name="nomor" value="{{ old('nomor') }}" placeholder="Masukkan Nomor Artkel">
+                                        <label class="font-weight-bold">Edisi</label>
+                                        <input type="text" class="form-control @error('edisi') is-invalid @enderror"
+                                            name="edisi" value="{{ old('edisi') }}" placeholder="Masukkan Edisi">
 
                                         <!-- error message untuk bidang_studi -->
-                                        @error('nomor')
+                                        @error('edisi')
                                             <div class="alert alert-danger mt-2">
                                                 {{ $message }}
                                             </div>
@@ -124,19 +152,6 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- akreditas --}}
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Terakreditas</label>
-                                <input type="text" class="form-control @error('akreditas') is-invalid @enderror"
-                                    name="akreditas" value="{{ old('akreditas') }}" placeholder="Masukkan Akreditas">
-
-                                <!-- error message untuk akreditas -->
-                                @error('akreditas')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
                             {{-- issn --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">ISSN/ISBN</label>
@@ -152,10 +167,21 @@
                             </div>
                             {{-- penulis --}}
                             <div id="penulis-fields">
-                                <div class="form-group mb-3">
-                                    <label>Nama Penulis</label>
-                                    <input type="text" name="penulis[0][nama]" class="form-control"
-                                        placeholder="Masukkan Nama Penulis">
+                                <div class="row">
+                                    <div class="col md-6">
+                                        <div class="form-group mb-3">
+                                            <label>Nama Penulis</label>
+                                            <input type="text" name="penulis[0][nama]" class="form-control"
+                                                placeholder="Masukkan Nama Penulis">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label>Program Studi</label>
+                                            <input type="text" name="penulis[0][prodi]" class="form-control"
+                                                placeholder="Masukkan Prodi">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -196,12 +222,18 @@
         document.getElementById('add-penulis-btn').addEventListener('click', function() {
             // Membuat elemen div baru untuk baris penulis
             let newRow = document.createElement('div');
-            newRow.classList.add('form-group', 'mb-3', 'penulis-row');
+            newRow.classList.add('row', 'penulis-prodi-row', 'mb-3');
 
             // Isi HTML untuk input nama penulis
             newRow.innerHTML = `
+            <div class="col-md-6">
                 <label class="font-weight-bold">Nama Penulis ${penulisIndex + 1}</label>
                 <input type="text" class="form-control" name="penulis[${penulisIndex}][nama]" placeholder="Masukkan Nama Penulis">
+            </div>
+            <div class="col-md-6">
+                <label class="font-weight-bold">Jurusan/Prodi</label>
+                <input type="text" class="form-control" name="penulis[${penulisIndex}][prodi]" placeholder="Masukkan Jurusan/Prodi">
+            </div>
             `;
 
             // Menambahkan baris input baru ke container penulis

@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id('id');
             $table->unsignedBigInteger('user_id'); // Menambahkan kolom user_id
             $table->string('nomorSurat')->nullable();
+            $table->string('kategori_publikasi')->nullable();
             $table->string('statusSurat')->nullable();        
             $table->string('judul');
             $table->string('namaPenerbit');
             $table->string('penerbit');
-            $table->bigInteger('volume');
-            $table->bigInteger('nomor');
+            $table->bigInteger('Jilid');
+            $table->string('Edisi');
             $table->string('bulan');
             $table->string('akreditas');
             $table->string('issn');

@@ -1,6 +1,11 @@
 @extends('layouts.admin')
 @section('content')
     <section class="section dashboard">
+        <style>
+            #categoryChart {
+                max-height: 400px;
+            }
+        </style>
 
         <div class="row">
 
@@ -98,7 +103,18 @@
                     <!-- End TugasPub Card 5 -->
                 </div>
             </div>
-
+            @if (Auth::user()->role == 'admin')
+                <hr>
+                {{-- container grafik --}}
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Statistik Surat <span>| Kategori Publikasi</span></h5>
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            @endif
             <hr>
             <!-- HKI -->
             <div class="col-12">
@@ -269,7 +285,7 @@
                 <div class="card recent-sales overflow-auto">
 
                     <div class="filter">
-                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>                    
+                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
                     </div>
 
                     <div class="card-body">
@@ -289,7 +305,7 @@
                                 @forelse ($dataKetPub as $h)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $h->penulis->firts()->name }}</td>
+                                        <td>{{ $h->penulis->first()->nama }}</td>
                                         <td>{{ $h->judul }}</td>
                                         <td>
                                             @if ($h->statusSurat == 'approved')
@@ -320,7 +336,7 @@
                 <div class="card recent-sales overflow-auto">
 
                     <div class="filter">
-                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>                    
+                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
                     </div>
 
                     <div class="card-body">
@@ -340,7 +356,7 @@
                                 @forelse ($dataTugaspub as $h)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $h->penulis->first()->name }}</td>
+                                        <td>{{ $h->penulis->first()->nama }}</td>
                                         <td>{{ $h->judul }}</td>
                                         <td>
                                             @if ($h->statusSurat == 'approved')
@@ -370,4 +386,80 @@
 
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+
+            // Mengambil data yang dikirim dari PHP
+            const prodiLabels = @json($prodiData->pluck('prodi')); // Nama Prodi
+            const prodiDataValues = @json($prodiData->pluck('total')); // Total Surat per Prodi
+            const kategoriPublikasi = @json($prodiData->pluck('kategori')); // Data kategori publikasi
+
+            // Menyusun data untuk grafik
+            const categoryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: prodiLabels, // Prodi sebagai label
+                    datasets: [{
+                        label: 'Jumlah Surat',
+                        data: prodiDataValues, // Total surat per prodi
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                // Menampilkan Total Surat di bagian title
+                                title: function(tooltipItem) {
+                                    const totalSurat = tooltipItem[0].raw; // Ambil total surat
+                                    return `Total Surat: ${totalSurat}`; // Tampilkan di title
+                                },
+                                // Menampilkan kategori publikasi di bagian footer
+                                footer: function(tooltipItem) {
+                                    const index = tooltipItem[0].dataIndex; // Dapatkan indeks data
+                                    const kategoriData = kategoriPublikasi[
+                                    index]; // Ambil data kategori berdasarkan indeks
+
+                                    // Cek jika ada data kategori
+                                    let footerText = 'Kategori Publikasi:';
+                                    if (kategoriData) {
+                                        // Loop untuk menampilkan kategori publikasi
+                                        for (const [kategori, jumlah] of Object.entries(kategoriData)) {
+                                            footerText +=
+                                            `\n- ${kategori}: ${jumlah}`; // Tampilkan kategori dan jumlahnya
+                                        }
+                                    } else {
+                                        footerText +=
+                                        '\nTidak ada data kategori'; // Menangani jika tidak ada data kategori
+                                    }
+                                    return footerText; // Tampilkan kategori di footer
+                                },
+                                label: function(tooltipItem) {
+                                    return ''; // Kosongkan label, karena kita memisahkannya ke title dan footer
+                                }
+                            },
+                            // Menambahkan pengaturan tooltip
+                            mode: 'index',
+                            intersect: false,
+                            displayColors: false,
+                            bodySpacing: 10,
+                            titleSpacing: 10,
+                            footerSpacing: 10
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 @endsection

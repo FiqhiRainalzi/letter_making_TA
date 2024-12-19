@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('tugaspub', function (Blueprint $table) {
             $table->id('id');
             $table->unsignedBigInteger('user_id'); // Menambahkan kolom user_id
-            $table->string('nomorSurat')->nullable();
             $table->string('statusSurat')->nullable();
+            $table->string('kategori_jurnal')->nullable();
+            $table->string('nomorSurat')->nullable();
             $table->string('namaPublikasi');
             $table->string('penerbit');
             $table->string('alamat');

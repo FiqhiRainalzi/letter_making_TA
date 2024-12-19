@@ -13,11 +13,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends BaseController
 {
     public function home()
     {
+
         // Mendapatkan user yang sedang login
         $user = Auth::user();
 
@@ -61,6 +63,28 @@ class AdminController extends BaseController
             $countTugaspub = Tugaspub::where('user_id', $user->id)->count();
         }
 
+        // Ambil data Ketpub dan lakukan relasi dengan Penulis
+        $prodiData = Ketpub::with('penulis') // Memastikan penulis ter-load
+            ->get()
+            ->groupBy(function ($item) {
+                // Ambil penulis pertama untuk setiap Ketpub
+                $penulis = $item->penulis->first(); // Ambil penulis pertama jika ada
+                return $penulis ? $penulis->jurusan_prodi : 'Tidak Ada Prodi'; // Ambil prodi dari penulis pertama
+            })
+            ->map(function ($items, $prodi) {
+                // Menghitung kategori publikasi per prodi
+                $kategoriPublikasi = $items->groupBy('kategori_publikasi')->map(function ($group) {
+                    return $group->count();
+                });
+
+                return [
+                    'prodi' => $prodi,
+                    'total' => $items->count(),
+                    'kategori' => $kategoriPublikasi,
+                    'bulan' => $items->first()->created_at->format('Y-m'), // Ambil bulan (YYYY-MM)
+                ];
+            });  
+
         //$title
         $title = 'Dashboard';
 
@@ -76,7 +100,8 @@ class AdminController extends BaseController
             'dataPenelitian',
             'dataPkm',
             'dataTugaspub',
-            'title'
+            'title',
+            'prodiData',
         ));
     }
 

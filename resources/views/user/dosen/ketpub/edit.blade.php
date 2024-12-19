@@ -22,6 +22,57 @@
                             </a>
                             @csrf
                             @method('PUT')
+                            {{-- kategori publikasi --}}
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Kategori Publikasi Akademik</label>
+                                <select class="form-control @error('kategori_publikasi') is-invalid @enderror"
+                                    id="kategori_publikasi" name="kategori_publikasi">
+                                    <option value="" disabled>Pilih Kategori Publikasi</option>
+                                    <option value="Artikel Ilmiah"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Artikel Ilmiah' ? 'selected' : '' }}>
+                                        Artikel Ilmiah</option>
+                                    <option value="Bahan Ajar"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Bahan Ajar' ? 'selected' : '' }}>
+                                        Bahan Ajar</option>
+                                    <option value="Monografi"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Monografi' ? 'selected' : '' }}>
+                                        Monografi</option>
+                                    <option value="Buku Referensi"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Buku Referensi' ? 'selected' : '' }}>
+                                        Buku Referensi</option>
+                                    <option value="Prosiding"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Prosiding' ? 'selected' : '' }}>
+                                        Prosiding</option>
+                                    <option value="Laporan Penelitian"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Laporan Penelitian' ? 'selected' : '' }}>
+                                        Laporan Penelitian</option>
+                                    <option value="Review Artikel"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Review Artikel' ? 'selected' : '' }}>
+                                        Review Artikel</option>
+                                    <option value="Bab Buku"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Bab Buku' ? 'selected' : '' }}>
+                                        Bab Buku</option>
+                                    <option value="Modul Pembelajaran"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Modul Pembelajaran' ? 'selected' : '' }}>
+                                        Modul Pembelajaran</option>
+                                    <option value="Karya Ilmiah Populer"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Karya Ilmiah Populer' ? 'selected' : '' }}>
+                                        Karya Ilmiah Populer</option>
+                                    <option value="Manual atau Panduan Teknis"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Manual atau Panduan Teknis' ? 'selected' : '' }}>
+                                        Manual atau Panduan Teknis</option>
+                                    <option value="Hak Kekayaan Intelektual (HKI)"
+                                        {{ old('kategori_publikasi', $ketpub->kategori_publikasi) == 'Hak Kekayaan Intelektual (HKI)' ? 'selected' : '' }}>
+                                        Hak Kekayaan Intelektual (HKI)</option>
+                                </select>
+
+                                <!-- error message untuk kategori_publikasi -->
+                                @error('kategori_publikasi')
+                                    <div class="alert alert-danger mt-2">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
                             {{-- judul --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Judul</label>
@@ -64,17 +115,17 @@
                                     </div>
                                 @enderror
                             </div>
-                            {{-- volume --}}
+                            {{-- edisi atau jilid --}}
                             <div class="row inventor-row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label class="font-weight-bold">Volume</label>
-                                        <input type="text" class="form-control @error('volume') is-invalid @enderror"
-                                            name="volume" value="{{ old('volume', $ketpub->volume) }}"
-                                            placeholder="Masukkan Volume Artikel">
+                                        <label class="font-weight-bold">Jilid</label>
+                                        <input type="number" class="form-control @error('jilid') is-invalid @enderror"
+                                            name="jilid" value="{{ old('jilid', $ketpub->jilid) }}"
+                                            placeholder="Masukkan Jilid">
 
-                                        <!-- error message untuk nama_inventor -->
-                                        @error('volume')
+                                        <!-- error message untuk jilid -->
+                                        @error('jilid')
                                             <div class="alert alert-danger mt-2">
                                                 {{ $message }}
                                             </div>
@@ -83,13 +134,13 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label class="font-weight-bold">Nomor</label>
-                                        <input type="text" class="form-control @error('nomor') is-invalid @enderror"
-                                            name="nomor" value="{{ old('nomor', $ketpub->nomor) }}"
-                                            placeholder="Masukkan Nomor Artkel">
+                                        <label class="font-weight-bold">Edisi</label>
+                                        <input type="text" class="form-control @error('edisi') is-invalid @enderror"
+                                            name="edisi" value="{{ old('edisi', $ketpub->edisi) }}"
+                                            placeholder="Masukkan Edisi">
 
-                                        <!-- error message untuk bidang_studi -->
-                                        @error('nomor')
+                                        <!-- error message untuk edisi -->
+                                        @error('edisi')
                                             <div class="alert alert-danger mt-2">
                                                 {{ $message }}
                                             </div>
@@ -129,20 +180,6 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- akredita --}}
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Terakreditas</label>
-                                <input type="text" class="form-control @error('akreditas') is-invalid @enderror"
-                                    name="akreditas" value="{{ old('akreditas', $ketpub->akreditas) }}"
-                                    placeholder="Masukkan Akreditas">
-
-                                <!-- error message untuk akreditas -->
-                                @error('akreditas')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
                             {{-- issn --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">ISSN/ISBN</label>
@@ -157,22 +194,28 @@
                                     </div>
                                 @enderror
                             </div>
-                            {{-- penulis --}}
                             <div id="penulis-fields">
+                                <!-- Inisialisasi penulis dengan data yang ada -->
                                 @foreach ($ketpub->penulis as $index => $penulis)
-                                    <div class="form-group mb-3">
-                                        <label class="font-weight-bold">Nama Penulis {{ $index + 1 }}</label>
-                                        <input type="hidden" name="penulis[{{ $index }}][id]"
-                                            value="{{ $penulis->id }}">
-                                        <input type="text" class="form-control"
-                                            name="penulis[{{ $index }}][nama]" placeholder="Masukkan Nama Penulis"
-                                            value="{{ old('penulis.' . $index . '.nama', $penulis->nama) }}">
+                                    <div class="row penulis-prodi-row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="font-weight-bold">Nama Penulis Ke-{{ $index + 1 }}</label>
+                                            <input type="text" class="form-control"
+                                                name="penulis[{{ $index }}][nama]"
+                                                value="{{ old('penulis.' . $index . '.nama', $penulis->nama) }}"
+                                                placeholder="Masukkan Nama Penulis">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="font-weight-bold">Jurusan/Prodi</label>
+                                            <input type="text" class="form-control"
+                                                name="penulis[{{ $index }}][prodi]"
+                                                value="{{ old('penulis.' . $index . '.prodi', $penulis->jurusan_prodi) }}"
+                                                placeholder="Masukkan Jurusan/Prodi">
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
-
-
-                            <button type="button" class="btn btn-success mb-3" id="add-penulis-btn">Tambah
+                            <button type="button" class="btn btn-success" id="add-penulis-prodi-btn">Tambah
                                 Penulis</button>
                             {{-- tanggal --}}
                             <div class="row inventor-row">
@@ -204,18 +247,24 @@
     </div>
 
     <script>
-        let penulisIndex = {{ count($ketpub->penulis) }};
+        let penulisIndex = {{ count($ketpub->penulis) }}; // Mulai dari jumlah penulis yang sudah ada
 
-        document.getElementById('add-penulis-btn').addEventListener('click', function() {
-            // Membuat elemen div baru untuk baris penulis
+        document.getElementById('add-penulis-prodi-btn').addEventListener('click', function() {
+            // Membuat elemen div baru untuk baris penulis dan prodi
             let newRow = document.createElement('div');
-            newRow.classList.add('form-group', 'mb-3', 'penulis-row');
+            newRow.classList.add('row', 'penulis-prodi-row', 'mb-3');
 
-            // Isi HTML untuk input nama penulis
+            // Isi HTML untuk input nama penulis dan jurusan/prodi
             newRow.innerHTML = `
-                <label class="font-weight-bold">Nama Penulis ${penulisIndex + 1}</label>
-                <input type="text" class="form-control" name="penulis[${penulisIndex}][nama]" placeholder="Masukkan Nama Penulis">
-            `;
+        <div class="col-md-6">
+            <label class="font-weight-bold">Nama Penulis</label>
+            <input type="text" class="form-control" name="penulis[${penulisIndex}][nama]" placeholder="Masukkan Nama Penulis">
+        </div>
+        <div class="col-md-6">
+            <label class="font-weight-bold">Jurusan/Prodi</label>
+            <input type="text" class="form-control" name="penulis[${penulisIndex}][prodi]" placeholder="Masukkan Jurusan/Prodi">
+        </div>
+    `;
 
             // Menambahkan baris input baru ke container penulis
             document.getElementById('penulis-fields').appendChild(newRow);

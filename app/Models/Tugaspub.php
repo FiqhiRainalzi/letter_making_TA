@@ -12,6 +12,7 @@ class Tugaspub extends Model
     protected $table = 'tugaspub';
     protected $fillable = [
         'nomorSurat',
+        'kategori_jurnal',
         'user_id',
         'statusSurat',
         'namaPublikasi',
