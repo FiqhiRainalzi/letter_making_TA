@@ -23,9 +23,11 @@
                             <thead>
                                 <tr>
                                     <th scope="col">No</th>
+                                    <th scope="col">Tanggal Pembuatan</th>
                                     <th scope="col">Nama Inventor</th>
                                     <th scope="col">Judul Invensi</th>
                                     <th scope="col">Status</th>
+                                    <th scope="col">Lama Proses (hari)</th>
                                     <th scope="col" style="width: 20%">Aksi</th>
                                 </tr>
                             </thead>
@@ -33,16 +35,24 @@
                                 @forelse ($hki as $h)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $h->inventors->first()->nama}}</td>
-                                        <td>{{ $h->judulInvensi }}</td>
+                                        <td>{{ $h->created_at->translatedFormat('d F Y') }}</td>
+                                        <td>{{ $h->inventor1 }}</td>
+                                        <td>{{ $h->judul }}</td>
                                         <td class="text-center">
-                                            @if ($h->statusSurat == 'approved')
-                                                <span class="badge bg-success">Approved</span>
-                                            @elseif($h->statusSurat == 'pending')
-                                                <span class="badge bg-warning">Pending</span>
-                                            @elseif($h->statusSurat == 'rejected')
-                                                <span class="badge bg-danger">Rejected</span>
+                                            @if ($h->statusSurat == 'draft')
+                                                <span class="badge bg-secondary">Draf</span>
+                                            @elseif ($h->statusSurat == 'approved')
+                                                <span class="badge bg-success">Diterima</span>
+                                            @elseif ($h->statusSurat == 'ready_for_pickup')
+                                                <span class="badge bg-warning">Siap Diambil</span>
+                                            @elseif ($h->statusSurat == 'picked_up')
+                                                <span class="badge bg-success">Sudah Diambil</span>
+                                            @elseif ($h->statusSurat == 'rejected')
+                                                <span class="badge bg-danger">Ditolak</span>
                                             @endif
+                                        </td>
+                                        <td class="text-center">
+                                            {{ floor($h->lama_proses) }} hari
                                         </td>
                                         <td class="text-center">
                                             <form id="deleteForm-{{ $h->id }}"

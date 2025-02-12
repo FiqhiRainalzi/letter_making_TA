@@ -37,12 +37,19 @@
                             <div class="form-group mb-3">
                                 <label for="statusSurat">Status</label>
                                 <select name="statusSurat" id="statusSurat" class="form-control">
-                                    <option value="pending" {{ $hki->statusSurat == 'pending' ? 'selected' : '' }}>Pending</option>
-                                    <option value="approved" {{ $hki->statusSurat == 'approved' ? 'selected' : '' }}>Approved
+                                    <option value="draft" {{ $hki->statusSurat == 'draft' ? 'selected' : '' }}>Draf
                                     </option>
-                                    <option value="rejected" {{ $hki->statusSurat == 'rejected' ? 'selected' : '' }}>Rejected
+                                    <option value="approved" {{ $hki->statusSurat == 'approved' ? 'selected' : '' }}>
+                                        DIterima</option>
+                                    <option value="ready_for_pickup"
+                                        {{ $hki->statusSurat == 'ready_for_pickup' ? 'selected' : '' }}>Siap Diambil
                                     </option>
+                                    <option value="picked_up" {{ $hki->statusSurat == 'picked_up' ? 'selected' : '' }}>
+                                        Sudah Diambil</option>
+                                    <option value="rejected" {{ $hki->statusSurat == 'rejected' ? 'selected' : '' }}>
+                                        Ditolak</option>
                                 </select>
+
                             </div>
                             <button type="submit" class="btn btn-md btn-primary me-3">SAVE</button>
                             <button type="reset" class="btn btn-md btn-warning">RESET</button>

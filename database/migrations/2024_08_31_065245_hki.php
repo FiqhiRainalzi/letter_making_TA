@@ -14,12 +14,32 @@ return new class extends Migration
         Schema::create('hki', function (Blueprint $table) {
             $table->id('id');
             $table->unsignedBigInteger('user_id'); // Menambahkan kolom user_id
-            $table->string('namaPemHki');
-            $table->string('alamatPemHki');
+            $table->string('namaPemegang');
+            $table->string('alamat');
             $table->string('nomorSurat')->nullable();
             $table->string('statusSurat')->nullable();
-            $table->string('judulInvensi');
-            $table->date('tanggalPemHki');
+            $table->string('judul');
+            $table->string('inventor1');
+            $table->string('inventor2')->nullable();
+            $table->string('inventor3')->nullable();
+            $table->string('inventor4')->nullable();
+            $table->string('inventor5')->nullable();
+            $table->string('inventor6')->nullable();
+            $table->string('inventor7')->nullable();
+            $table->string('inventor8')->nullable();
+            $table->string('inventor9')->nullable();
+            $table->string('inventor10')->nullable();
+            $table->string('bidangStudi1');
+            $table->string('bidangStudi2')->nullable();
+            $table->string('bidangStudi3')->nullable();
+            $table->string('bidangStudi4')->nullable();
+            $table->string('bidangStudi5')->nullable();
+            $table->string('bidangStudi6')->nullable();
+            $table->string('bidangStudi7')->nullable();
+            $table->string('bidangStudi8')->nullable();
+            $table->string('bidangStudi9')->nullable();
+            $table->string('bidangStudi10')->nullable();
+            $table->date('tanggal');
             $table->timestamps();
 
             // Menambahkan foreign key constraint

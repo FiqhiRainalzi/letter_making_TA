@@ -158,19 +158,19 @@
                         <td>a)</td>
                         <td style="width: 25%">Nama Pemegang Hak</td>
                         <td style="width: 5%">:</td>
-                        <td>{{ $hki->namaPemHki }}</td>
+                        <td>{{ $hki->namaPemegang }}</td>
                     </tr>
                     <tr>
                         <td>b)</td>
                         <td>Alamat Pemegang Hak</td>
                         <td>:</td>
-                        <td>{{ $hki->alamatPemHki }}</td>
+                        <td>{{ $hki->alamat }}</td>
                     </tr>
                     <tr>
                         <td>c)</td>
                         <td>Judul Invensi</td>
                         <td>:</td>
-                        <td><strong>{{ $hki->judulInvensi }}</strong></td>
+                        <td><strong>{{ $hki->judul }}</strong></td>
                     </tr>
                     <tr>
                         <td>d)</td>
@@ -178,13 +178,21 @@
                         <td>:</td>
                         <td colspan="3">
                             <table class="inventor-list">
-                                @foreach ($hki->inventors as $index => $inventor)
-                                    <tr>
-                                        <td>{{ $index + 1 }}.</td>
-                                        <td>{{ $inventor->nama }}</td>
-                                        <td>{{ $inventor->bidang_studi }}</td>
-                                    </tr>
-                                @endforeach
+                                @php $index = 1; @endphp
+                                @for ($i = 1; $i <= 10; $i++)
+                                    @php
+                                        $namaInventor = "inventor{$i}";
+                                        $bidangStudi = "bidang_studi{$i}";
+                                    @endphp
+                                    @if (!empty($hki->$namaInventor))
+                                        {{-- Cek apakah ada data --}}
+                                        <tr>
+                                            <td>{{ $index++ }}.</td>
+                                            <td>{{ $hki->$namaInventor }}</td>
+                                            <td>{{ $hki->$bidangStudi }}</td>
+                                        </tr>
+                                    @endif
+                                @endfor
                             </table>
                         </td>
                     </tr>
@@ -196,7 +204,7 @@
                 </p>
                 <div style="float: right; text-align: right;">
                     <p class="signature">Cilacap,
-                        <strong>{{ \Carbon\Carbon::parse($hki->tanggalPemHki)->translatedFormat('d F Y') }}</strong><br>Kepala
+                        <strong>{{ \Carbon\Carbon::parse($hki->tanggal)->translatedFormat('d F Y') }}</strong><br>Kepala
                         P3M Politeknik Negeri Cilacap
                     </p>&nbsp;&nbsp;
                     <p class="signature"><strong><u>Ganjar Ndaru Ikhtiagung, M. M.</u></strong><br>NIP. 198307282021211002

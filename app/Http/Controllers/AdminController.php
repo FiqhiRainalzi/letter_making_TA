@@ -25,7 +25,7 @@ class AdminController extends BaseController
 
         if ($user->role === 'admin') {
             // Jika user adalah admin, tampilkan semua data dalam 24 jam terakhir
-            $dataHki = Hki::where('created_at', '>=', Carbon::now()->subDay())->with('inventors')->get();
+            $dataHki = Hki::where('created_at', '>=', Carbon::now()->subDay())->get();
             $dataKetPub = Ketpub::where('created_at', '>=', Carbon::now()->subDay())->get();
             $dataPenelitian = Penelitian::where('created_at', '>=', Carbon::now()->subDay())->get();
             $dataPkm = Pkm::where('created_at', '>=', Carbon::now()->subDay())->get();
@@ -63,27 +63,21 @@ class AdminController extends BaseController
             $countTugaspub = Tugaspub::where('user_id', $user->id)->count();
         }
 
-        // Ambil data Ketpub dan lakukan relasi dengan Penulis
-        $prodiData = Ketpub::with('penulis') // Memastikan penulis ter-load
+        $prodiData = Ketpub::with('penulis') // Pastikan penulis ter-load
             ->get()
             ->groupBy(function ($item) {
-                // Ambil penulis pertama untuk setiap Ketpub
-                $penulis = $item->penulis->first(); // Ambil penulis pertama jika ada
-                return $penulis ? $penulis->jurusan_prodi : 'Tidak Ada Prodi'; // Ambil prodi dari penulis pertama
+                return $item->created_at->format('Y'); // Kelompokkan berdasarkan tahun
             })
-            ->map(function ($items, $prodi) {
-                // Menghitung kategori publikasi per prodi
-                $kategoriPublikasi = $items->groupBy('kategori_publikasi')->map(function ($group) {
-                    return $group->count();
+            ->map(function ($itemsByYear) {
+                return $itemsByYear->groupBy(function ($item) {
+                    return $item->penulis->first()->jurusan_prodi ?? 'Tidak Ada Prodi';
+                })->map(function ($itemsByProdi) {
+                    return [
+                        'total' => $itemsByProdi->count(),
+                        'kategori' => $itemsByProdi->groupBy('kategori_publikasi')->map->count(),
+                    ];
                 });
-
-                return [
-                    'prodi' => $prodi,
-                    'total' => $items->count(),
-                    'kategori' => $kategoriPublikasi,
-                    'bulan' => $items->first()->created_at->format('Y-m'), // Ambil bulan (YYYY-MM)
-                ];
-            });  
+            });
 
         //$title
         $title = 'Dashboard';
@@ -112,6 +106,15 @@ class AdminController extends BaseController
         $hki = Hki::get();
         $today = date('Y-m-d');
         $title = 'Surat HKI';
+        //menghitung hari proses pengajuan
+        $hki->transform(function ($item) {
+            if (in_array($item->statusSurat, ['approved', 'ready_to_pickup', 'picked_up', 'rejected'])) {
+                $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::parse($item->updated_at));
+            } else {
+                $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::now());
+            }
+            return $item;
+        });
         return view('user.admin.hki.index', compact('hki', 'today', 'title'));
     }
 
@@ -127,7 +130,7 @@ class AdminController extends BaseController
         $hki = Hki::findOrFail($id);
         $request->validate([
             'nomorSurat' => 'unique:hki,nomorSurat,' . $hki->id,
-            'statusSurat' => 'required|in:pending,approved,rejected', // Validasi status
+            'statusSurat' => 'required', // Validasi status
         ]);
         // Kirim notifikasi ke dosen
         $dosenId = $request->input('dosen_id'); // ID dosen target

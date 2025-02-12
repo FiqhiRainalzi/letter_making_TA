@@ -68,8 +68,8 @@
                         </li>
                         <li>
                             <a href="{{ route('admin.tugaspubView') }}"
-                                class="{{ Request::routeIs('admin.tugaspubView') ? 'active' : '' }}">Surat Tugas Publikasi
-                                Nasional</a>
+                                class="{{ Request::routeIs('admin.tugaspubView') ? 'active' : '' }}">Surat Tugas
+                                Publikasi</a>
                         </li>
                     </ul>
                 </li>
@@ -136,8 +136,8 @@
                                 class="{{ Request::routeIs('ketpub.index') ? 'active' : '' }}">Surat Keterangan
                                 Publikasi</a></li>
                         <li><a href="{{ route('tugaspub.index') }}"
-                                class="{{ Request::routeIs('tugaspub.index') ? 'active' : '' }}">Surat Tugas Publikasi
-                                Nasional</a></li>
+                                class="{{ Request::routeIs('tugaspub.index') ? 'active' : '' }}">Surat Tugas Publikasi</a>
+                        </li>
                     </ul>
                 </li>
             @endif

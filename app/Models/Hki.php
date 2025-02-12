@@ -13,10 +13,30 @@ class Hki extends Model
 
     protected $fillable = [
         'user_id',
-        'namaPemHki',
-        'alamatPemHki',
-        'judulInvensi',
-        'tanggalPemHki',
+        'namaPemegang',
+        'alamat',
+        'judul',
+        'inventor1',
+        'inventor2',
+        'inventor3',
+        'inventor4',
+        'inventor5',
+        'inventor6',
+        'inventor7',
+        'inventor8',
+        'inventor9',
+        'inventor10',
+        'bidangStudi1',
+        'bidangStudi2',
+        'bidangStudi3',
+        'bidangStudi4',
+        'bidangStudi5',
+        'bidangStudi6',
+        'bidangStudi7',
+        'bidangStudi8',
+        'bidangStudi9',
+        'bidangStudi10',
+        'tanggal',
         'statusSurat',
         'nomorSurat',
     ];
@@ -24,10 +44,5 @@ class Hki extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function inventors()
-    {
-        return $this->hasMany(Inventor::class);
     }
 }

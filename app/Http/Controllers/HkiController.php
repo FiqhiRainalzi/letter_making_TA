@@ -18,13 +18,19 @@ class HkiController extends BaseController
         // Mendapatkan user yang sedang login
         $user = Auth::user();
 
-        // Mengambil data HKI yang terkait dengan user, diurutkan berdasarkan terbaru, dan dipaginasi
-        $hki = Hki::where('user_id', $user->id)
-            ->with('inventors') // Memuat relasi inventors
-            ->get();
-        // ->paginate(5); // Paginasi 5 per halaman
+        // Mengambil data HKI yang terkait dengan user
+        $hki = Hki::where('user_id', $user->id)->get();
         $title = 'Surat HKI';
         $today = date('Y-m-d');
+        //menghitung hari proses pengajuan
+        $hki->transform(function ($item) {
+            if (in_array($item->statusSurat, ['approved', 'ready_to_pickup', 'picked_up', 'rejected'])) {
+                $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::parse($item->updated_at));
+            } else {
+                $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::now());
+            }
+            return $item;
+        });
         return view('user.dosen.hki.index', compact('today', 'hki', 'title'));
     }
 
@@ -43,25 +49,43 @@ class HkiController extends BaseController
     public function store(Request $request)
     {
         $request->validate([
-            'namaPemHki'    => 'required',
-            'alamatPemHki'  => 'required|min:5',
-            'judulInvensi'  => 'required|min:5',
+            'namaPemegang'    => 'required',
+            'alamat'  => 'required|min:5',
+            'judul'  => 'required|min:5',
+            'tanggal' => 'required',
         ]);
 
         // Simpan data HKI
-        $hki = Hki::create([
+        Hki::create([
             'user_id'       => Auth::id(),
-            'namaPemHki'    => $request->namaPemHki,
-            'alamatPemHki'  => $request->alamatPemHki,
-            'judulInvensi'  => $request->judulInvensi,
-            'tanggalPemHki' => $request->tanggalPemHki,
-            'statusSurat'   => 'pending',
+            'namaPemegang'    => $request->namaPemegang,
+            'alamat'  => $request->alamat,
+            'judul'  => $request->judul,
+            // Inventor 1-10
+            'inventor1'  => $request->inventor1 ?? null,
+            'inventor2'  => $request->inventor2 ?? null,
+            'inventor3'  => $request->inventor3 ?? null,
+            'inventor4'  => $request->inventor4 ?? null,
+            'inventor5'  => $request->inventor5 ?? null,
+            'inventor6'  => $request->inventor6 ?? null,
+            'inventor7'  => $request->inventor7 ?? null,
+            'inventor8'  => $request->inventor8 ?? null,
+            'inventor9'  => $request->inventor9 ?? null,
+            'inventor10' => $request->inventor10 ?? null,
+            // Bidang Studi 1-10
+            'bidangStudi1'  => $request->bidangStudi1 ?? null,
+            'bidangStudi2'  => $request->bidangStudi2 ?? null,
+            'bidangStudi3'  => $request->bidangStudi3 ?? null,
+            'bidangStudi4'  => $request->bidangStudi4 ?? null,
+            'bidangStudi5'  => $request->bidangStudi5 ?? null,
+            'bidangStudi6'  => $request->bidangStudi6 ?? null,
+            'bidangStudi7'  => $request->bidangStudi7 ?? null,
+            'bidangStudi8'  => $request->bidangStudi8 ?? null,
+            'bidangStudi9'  => $request->bidangStudi9 ?? null,
+            'bidangStudi10' => $request->bidangStudi10 ?? null,
+            'tanggal'   => $request->tanggal,
+            'statusSurat'   => 'draft',
         ]);
-
-        // Simpan data inventors
-        foreach ($request->inventors as $inventorData) {
-            $hki->inventors()->create($inventorData);
-        }
 
         return redirect()->route('hki.index')->with(['success' => 'Data berhasil disimpan']);
     }
@@ -73,7 +97,6 @@ class HkiController extends BaseController
     {
         // Muat relasi 'user' dan 'inventors'
         $hki = Hki::findOrFail($id);
-        $hki->load('inventors');
         $user = Auth::user();
         $title = 'Tampilan Surat HKI';
 
@@ -92,7 +115,6 @@ class HkiController extends BaseController
     public function edit(string $id)
     {
         $hki = Hki::findOrFail($id);
-        $hki->load('inventors');
         $title = 'Edit Surat HKI';
         return view('user.dosen.hki.edit', compact('hki', 'title'));
     }
@@ -101,9 +123,9 @@ class HkiController extends BaseController
     {
         // Validasi input hanya untuk data utama
         $request->validate([
-            'namaPemHki'    => 'required',
-            'alamatPemHki'  => 'required|min:5',
-            'judulInvensi'  => 'required|min:5',
+            'namaPemegang'    => 'required',
+            'alamat'  => 'required|min:5',
+            'judul'  => 'required|min:5',
         ]);
 
         // Cari data HKI berdasarkan ID
@@ -111,33 +133,34 @@ class HkiController extends BaseController
 
         // Update data utama HKI
         $hki->update([
-            'namaPemHki'   => $request->namaPemHki,
-            'alamatPemHki' => $request->alamatPemHki,
-            'judulInvensi' => $request->judulInvensi,
-            'tanggalPemHki' => $request->tanggalPemHki,
+            'namaPemegang'   => $request->namaPemegang,
+            'alamat' => $request->alamat,
+            'judul' => $request->judul,
+            // Inventor 1-10
+            'inventor1'  => $request->inventor1 ?? null,
+            'inventor2'  => $request->inventor2 ?? null,
+            'inventor3'  => $request->inventor3 ?? null,
+            'inventor4'  => $request->inventor4 ?? null,
+            'inventor5'  => $request->inventor5 ?? null,
+            'inventor6'  => $request->inventor6 ?? null,
+            'inventor7'  => $request->inventor7 ?? null,
+            'inventor8'  => $request->inventor8 ?? null,
+            'inventor9'  => $request->inventor9 ?? null,
+            'inventor10' => $request->inventor10 ?? null,
+            // Bidang Studi 1-10
+            'bidangStudi1'  => $request->bidangStudi1 ?? null,
+            'bidangStudi2'  => $request->bidangStudi2 ?? null,
+            'bidangStudi3'  => $request->bidangStudi3 ?? null,
+            'bidangStudi4'  => $request->bidangStudi4 ?? null,
+            'bidangStudi5'  => $request->bidangStudi5 ?? null,
+            'bidangStudi6'  => $request->bidangStudi6 ?? null,
+            'bidangStudi7'  => $request->bidangStudi7 ?? null,
+            'bidangStudi8'  => $request->bidangStudi8 ?? null,
+            'bidangStudi9'  => $request->bidangStudi9 ?? null,
+            'bidangStudi10' => $request->bidangStudi10 ?? null,
+            'tanggal' => $request->tanggal,
         ]);
 
-        // Hapus semua inventor yang lama (hanya jika kita tidak ingin menduplikasi)
-        $hki->inventors()->delete();
-
-        // Update atau tambah inventor tanpa validasi
-        if (!empty($request->inventors)) {
-            foreach ($request->inventors as $inventorData) {
-                // Cek jika namaInventor atau bidangStudi kosong
-                if (!empty($inventorData['nama']) && !empty($inventorData['bidang_studi'])) {
-                    if (isset($inventorData['id'])) {
-                        // Update data inventor yang ada
-                        $inventor = Inventor::find($inventorData['id']);
-                        if ($inventor) {
-                            $inventor->update($inventorData);
-                        }
-                    } else {
-                        // Tambah inventor baru jika nama dan bidang_studi tidak kosong
-                        $hki->inventors()->create($inventorData);
-                    }
-                }
-            }
-        }
 
         return redirect()->route('hki.index')->with('success', 'Data berhasil diupdate');
     }
