@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('tugaspub', function (Blueprint $table) {
             $table->id('id');
-            $table->unsignedBigInteger('user_id'); // Menambahkan kolom user_id
-            $table->string('statusSurat')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('ajuan_surat_id')->constrained('ajuan_surat')->onDelete('cascade');
             $table->string('kategori_jurnal')->nullable();
             $table->string('nomorSurat')->nullable();
             $table->string('namaPublikasi');
@@ -30,8 +30,6 @@ return new class extends Migration
             $table->date('tanggal');
 
             $table->timestamps();
-            // Menambahkan foreign key constraint
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -40,8 +38,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tugaspub', function (Blueprint $table) {
-            // Menghapus foreign key sebelum menghapus tabel
+        Schema::table('hki', function (Blueprint $table) {
+            $table->dropForeign(['ajuan_surat_id']);
             $table->dropForeign(['user_id']);
         });
         Schema::dropIfExists('tugaspub');

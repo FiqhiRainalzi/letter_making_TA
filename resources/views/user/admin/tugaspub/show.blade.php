@@ -89,38 +89,6 @@
             /* Atur sesuai dengan kebutuhan */
         }
 
-        /* Print styles */
-        @media print {
-
-            .header,
-            .footer {
-                position: fixed;
-                width: 100%;
-                left: 0;
-                right: 0;
-                text-align: center;
-            }
-
-            .header {
-                top: 0;
-                height: 120px;
-                /* Sesuaikan dengan tinggi header */
-            }
-
-            .footer {
-                bottom: 0;
-                height: 36px;
-                /* Sesuaikan dengan tinggi footer */
-            }
-
-            .content {
-                padding-top: 140px;
-                /* Sesuaikan dengan tinggi header */
-                padding-bottom: 56px;
-                /* Sesuaikan dengan tinggi footer */
-                margin: 0;
-            }
-        }
     </style>
 
     <body>
@@ -173,7 +141,7 @@
                             <tr>
                                 <td class="center-text">{{ $index + 1 }}.</td>
                                 <td>{{ $penulis->nama }}</td>
-                                <td>{{ $penulis->jurusan_prodi }}</td>
+                                <td>{{ $penulis->prodi->nama ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -133,7 +133,7 @@
                 <p style="margin-top: 3cm" class="center-text"><strong><em><u>SURAT KETERANGAN PERMOHONAN
                                 HKI</u></em></strong></p>
                 <p class="center-text">Nomor :
-                    {{ $hki->nomorSurat ?: '-' }}/{{ \Carbon\Carbon::parse($hki->tanggalPemHki)->translatedFormat('Y') }}
+                    {{ $hki->nomorSurat ?: '-' }}/{{ $hki->kodeSurat->kode_instansi}}/{{ $hki->kodeSurat->kode_layanan }}/{{ \Carbon\Carbon::parse($hki->tanggalPemHki)->translatedFormat('Y') }}
                 </p>
                 <p class="center-text">&nbsp;</p>
                 <p>Yang bertandatangan di bawah ini;</p>
@@ -181,21 +181,13 @@
                         <td>:</td>
                         <td colspan="3">
                             <table class="inventor-list">
-                                @php $index = 1; @endphp
-                                @for ($i = 1; $i <= 10; $i++)
-                                    @php
-                                        $namaInventor = "inventor{$i}";
-                                        $bidangStudi = "bidang_studi{$i}";
-                                    @endphp
-                                    @if (!empty($hki->$namaInventor))
-                                        {{-- Cek apakah ada data --}}
-                                        <tr>
-                                            <td>{{ $index++ }}.</td>
-                                            <td>{{ $hki->$namaInventor }}</td>
-                                            <td>{{ $hki->$bidangStudi }}</td>
-                                        </tr>
-                                    @endif
-                                @endfor
+                                @foreach ($hki->inventor as $index => $i)
+                                    <tr>
+                                        <td>{{ $index + 1 }}.</td>
+                                        <td>{{ $i->nama }}</td>
+                                        <td>{{ $i->prodi->nama }}</td>
+                                    </tr>
+                                @endforeach
                             </table>
                         </td>
                     </tr>

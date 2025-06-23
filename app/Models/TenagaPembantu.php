@@ -9,16 +9,24 @@ class TenagaPembantu extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['pkm_id', 'penelitian_id', 'nama', 'status'];
+    protected $fillable = ['nama', 'pkm_id', 'penelitian_id', 'prodi_id'];
     protected $table = 'tenaga_pembantu';
 
+    // Relasi ke tabel penelitian
+    public function penelitian()
+    {
+        return $this->belongsTo(Penelitian::class);
+    }
+
+    // Relasi ke tabel pkm
     public function pkm()
     {
         return $this->belongsTo(Pkm::class);
     }
 
-    public function penelitian()
+    // Relasi ke tabel prodi
+    public function prodi()
     {
-        return $this->belongsTo(Penelitian::class);
+        return $this->belongsTo(Prodi::class);
     }
 }

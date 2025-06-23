@@ -91,39 +91,6 @@
             margin-top: -30px;
             /* Atur sesuai dengan kebutuhan */
         }
-
-        /* Print styles */
-        @media print {
-
-            .header,
-            .footer {
-                position: fixed;
-                width: 100%;
-                left: 0;
-                right: 0;
-                text-align: center;
-            }
-
-            .header {
-                top: 0;
-                height: 120px;
-                /* Sesuaikan dengan tinggi header */
-            }
-
-            .footer {
-                bottom: 0;
-                height: 36px;
-                /* Sesuaikan dengan tinggi footer */
-            }
-
-            .content {
-                padding-top: 140px;
-                /* Sesuaikan dengan tinggi header */
-                padding-bottom: 56px;
-                /* Sesuaikan dengan tinggi footer */
-                margin: 0;
-            }
-        }
     </style>
 
     {{-- halaman pertama --}}
@@ -221,7 +188,8 @@
     </body>
 
     {{-- halaman kedua --}}
-<hr>
+    <hr>
+
     <body>
         <div class="container">
             <div class="content">
@@ -232,7 +200,7 @@
                     </span>&nbsp;
                 </p>
                 <p style="margin-top: 3cm" class="left-text"><strong>Lampiran Surat tugas :
-                        {{ $penelitian->nomorSurat?: '-'  }}/{{ \Carbon\Carbon::parse($penelitian->tanggal)->translatedFormat('Y') }}</strong>
+                        {{ $penelitian->nomorSurat ?: '-' }}/{{ \Carbon\Carbon::parse($penelitian->tanggal)->translatedFormat('Y') }}</strong>
                 </p>
 
                 {{-- tenaga anggota --}}
@@ -245,14 +213,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($penelitian->anggota as $index => $anggota)
+                        @forelse ($penelitian->anggota as $index => $anggota)
                             <tr>
-                                <td class="center-text">{{ $index + 1 }}.</td>
+                                <td class="center-text">{{ $index + 1 }}</td>
                                 <td>{{ $anggota->nama }}</td>
-                                <td>{{ $anggota->prodi }}</td>
+                                <td>{{ $anggota->prodi->nama ?? '-' }}</td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center">Tidak ada data anggota.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
+
                 </table>
 
                 {{-- table tenaga --}}
@@ -265,13 +238,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($penelitian->tenagaPembantu as $index => $tenagaPembantu)
+                        @forelse ($penelitian->tenagaPembantu as $index => $tenagaPembantu)
                             <tr>
-                                <td class="center-text">{{ $index + 1 }}.</td>
+                                <td class="center-text">{{ $index + 1 }}</td>
                                 <td>{{ $tenagaPembantu->nama }}</td>
-                                <td>{{ $tenagaPembantu->status }}</td>
+                                <td>{{ $tenagaPembantu->prodi->nama ?? '-' }}</td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center">Tidak ada data anggota.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
 

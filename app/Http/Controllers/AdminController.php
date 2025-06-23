@@ -3,59 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Models\Hki;
-use App\Models\Ketpub;
-use App\Models\Notification;
-use App\Models\Penelitian;
 use App\Models\Pkm;
+use App\Models\User;
+use App\Models\Ketua;
+use App\Models\Ketpub;
+use GuzzleHttp\Client;
+use App\Models\Riwayat;
 use App\Models\Inventor;
 use App\Models\Tugaspub;
-use App\Models\User;
+use App\Models\KodeSurat;
+use App\Models\AjuanSurat;
+use App\Models\Penelitian;
+use App\Models\Verifikasi;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
+use App\Helpers\KodeSuratHelper;
+use App\Helpers\NomorSuratHelper;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
+use App\Helpers\ValidasiNomorSuratHelper;
+use marineusde\LarapexCharts\LarapexChart;
+use marineusde\LarapexCharts\Charts\BarChart;
 
 class AdminController extends BaseController
 {
     public function home()
     {
-
-        // Mendapatkan user yang sedang login
         $user = Auth::user();
 
         if ($user->role === 'admin') {
-            // Jika user adalah admin, tampilkan semua data dalam 24 jam terakhir
-            $dataHki = Hki::where('created_at', '>=', Carbon::now()->subDay())->get();
-            $dataKetPub = Ketpub::where('created_at', '>=', Carbon::now()->subDay())->get();
-            $dataPenelitian = Penelitian::where('created_at', '>=', Carbon::now()->subDay())->get();
-            $dataPkm = Pkm::where('created_at', '>=', Carbon::now()->subDay())->get();
-            $dataTugaspub = Tugaspub::where('created_at', '>=', Carbon::now()->subDay())->get();
-
-            // Menghitung total jumlah semua data
             $countHki = Hki::count();
             $countKetPub = Ketpub::count();
             $countPenelitian = Penelitian::count();
             $countPkm = Pkm::count();
             $countTugaspub = Tugaspub::count();
         } else {
-            // Jika bukan admin, tampilkan data berdasarkan user_id dan dalam 24 jam terakhir
-            $dataHki = Hki::where('user_id', $user->id)
-                ->where('created_at', '>=', Carbon::now()->subDay())
-                ->get();
-            $dataKetPub = Ketpub::where('user_id', $user->id)
-                ->where('created_at', '>=', Carbon::now()->subDay())
-                ->get();
-            $dataPenelitian = Penelitian::where('user_id', $user->id)
-                ->where('created_at', '>=', Carbon::now()->subDay())
-                ->get();
-            $dataPkm = Pkm::where('user_id', $user->id)
-                ->where('created_at', '>=', Carbon::now()->subDay())
-                ->get();
-            $dataTugaspub = Tugaspub::where('user_id', $user->id)
-                ->where('created_at', '>=', Carbon::now()->subDay())
-                ->get();
-
-            // Menghitung jumlah data berdasarkan user_id
             $countHki = Hki::where('user_id', $user->id)->count();
             $countKetPub = Ketpub::where('user_id', $user->id)->count();
             $countPenelitian = Penelitian::where('user_id', $user->id)->count();
@@ -63,238 +47,70 @@ class AdminController extends BaseController
             $countTugaspub = Tugaspub::where('user_id', $user->id)->count();
         }
 
-        $prodiData = Ketpub::with('penulis') // Pastikan penulis ter-load
-            ->get()
-            ->groupBy(function ($item) {
-                return $item->created_at->format('Y'); // Kelompokkan berdasarkan tahun
-            })
-            ->map(function ($itemsByYear) {
-                return $itemsByYear->groupBy(function ($item) {
-                    return $item->penulis->first()->jurusan_prodi ?? 'Tidak Ada Prodi';
-                })->map(function ($itemsByProdi) {
-                    return [
-                        'total' => $itemsByProdi->count(),
-                        'kategori' => $itemsByProdi->groupBy('kategori_publikasi')->map->count(),
-                    ];
-                });
-            });
+        // Grafik jumlah surat per jenis
+        $labels = ['hki', 'penelitian', 'pkm', 'tugaspub', 'ketpub'];
+        $data = [];
 
-        //$title
+        foreach ($labels as $label) {
+            $count = AjuanSurat::where('jenis_surat', strtolower($label))->count();
+            $data[] = $count;
+        }
+
+        $chart = (new BarChart)
+            ->setTitle('Jumlah Surat per Jenis')
+            ->setDataset([['name' => 'Total Surat', 'data' => $data]])
+            ->setLabels($labels);
+
+        // Grafik jumlah surat per bulan tahun ini
+        $bulanLabels = [];
+        $dataPerBulan = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $bulan = Carbon::create()->month($i)->translatedFormat('F');
+            $bulanLabels[] = $bulan;
+
+            $jumlah = AjuanSurat::whereYear('created_at', now()->year)
+                ->whereMonth('created_at', $i)
+                ->count();
+
+            $dataPerBulan[] = $jumlah;
+        }
+
+        $chartBulanan = (new BarChart)
+            ->setTitle('Jumlah Surat per Bulan (' . now()->year . ')')
+            ->setDataset([['name' => 'Total Surat', 'data' => $dataPerBulan]])
+            ->setLabels($bulanLabels);
+
+        // Grafik top 5 user terbanyak mengajukan surat
+        $topUsers = AjuanSurat::select('user_id', DB::raw('count(*) as total'))
+            ->groupBy('user_id')
+            ->orderByDesc('total')
+            ->with('user') // make sure relasi 'user' ada di model AjuanSurat
+            ->take(5)
+            ->get();
+
+        $userLabels = $topUsers->pluck('user.name')->toArray();
+        $userCounts = $topUsers->pluck('total')->toArray();
+
+        $chartTopUser = (new BarChart)
+            ->setTitle('Top 5 Pengaju Surat')
+            ->setDataset([['name' => 'Jumlah Surat', 'data' => $userCounts]])
+            ->setLabels($userLabels);
+
         $title = 'Dashboard';
 
-        // Mengirim data dan hitungan ke view
         return view('user.admin.dashboard', compact(
             'countHki',
             'countKetPub',
             'countPenelitian',
             'countPkm',
             'countTugaspub',
-            'dataHki',
-            'dataKetPub',
-            'dataPenelitian',
-            'dataPkm',
-            'dataTugaspub',
             'title',
-            'prodiData',
+            'chart',
+            'chartBulanan',
+            'chartTopUser'
         ));
-    }
-
-
-    //hki controller
-    public function hkiView()
-    {
-        $hki = Hki::get();
-        $today = date('Y-m-d');
-        $title = 'Surat HKI';
-        //menghitung hari proses pengajuan
-        $hki->transform(function ($item) {
-            if (in_array($item->statusSurat, ['approved', 'ready_to_pickup', 'picked_up', 'rejected'])) {
-                $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::parse($item->updated_at));
-            } else {
-                $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::now());
-            }
-            return $item;
-        });
-        return view('user.admin.hki.index', compact('hki', 'today', 'title'));
-    }
-
-    public function hkiEdit($id)
-    {
-        $hki = Hki::findOrFail($id);
-        $title = 'Edit Surat HKI';
-        return view('user.admin.hki.edit', compact('hki', 'title'));
-    }
-
-    public function hkiUpdate(Request $request, string $id)
-    {
-        $hki = Hki::findOrFail($id);
-        $request->validate([
-            'nomorSurat' => 'unique:hki,nomorSurat,' . $hki->id,
-            'statusSurat' => 'required', // Validasi status
-        ]);
-        // Kirim notifikasi ke dosen
-        $dosenId = $request->input('dosen_id'); // ID dosen target
-        Notification::create([
-            'user_id' => $dosenId,
-            'title' => 'Data HKI Baru oleh Admin',
-            'message' => 'Admin telah membuat data HKI baru untuk Anda.',
-            'status' => 'unread',
-        ]);
-
-        $hki->update($request->all());
-        return redirect()->route('admin.hkiView')->with('success', 'Data berhasil diupdate');
-    }
-    //end hki controller
-
-    //pkm controller
-    public function pkmView()
-    {
-        $pkm = Pkm::get();
-        $pkm->load('anggota', 'tenagaPembantu');
-        $today = date('Y-m-d');
-        $title = 'Surat PKM';
-        return view('user.admin.pkm.index', compact('pkm', 'today', 'title'));
-    }
-
-    public function pkmEdit($id)
-    {
-        $pkm = Pkm::findOrFail($id);
-        $title = 'Edit Surat PKM';
-        return view('user.admin.pkm.edit', compact('pkm', 'title'));
-    }
-
-    public function pkmUpdate(Request $request, string $id)
-    {
-        $pkm = Pkm::findOrFail($id);
-
-        $request->validate([
-            'nomorSurat'    => 'unique:pkm,nomorSurat,' . $pkm->id,
-            'statusSurat' => 'required|in:pending,approved,rejected', // Validasi status
-        ]);
-        // Kirim notifikasi ke dosen
-        $dosenId = $request->input('dosen_id'); // ID dosen target
-        Notification::create([
-            'user_id' => $dosenId,
-            'title' => 'Data PKM Baru oleh Admin',
-            'message' => 'Admin telah membuat data PKM baru untuk Anda.',
-            'status' => 'unread',
-            'url' => route('pkm.index')
-        ]);
-        $pkm->update($request->all());
-        return redirect()->route('admin.pkmView')->with('success', 'Data berhasil diupdate');
-    }
-    //end pkm controller
-
-    //penelitian controller
-    public function penelitianView()
-    {
-        $penelitian = Penelitian::get();
-        $today = date('Y-m-d');
-        $title = 'Surat Penelitian';
-        return view('user.admin.penelitian.index', compact('penelitian', 'today', 'title'));
-    }
-
-    public function penelitianEdit($id)
-    {
-        $penelitian = Penelitian::findOrFail($id);
-        $title = 'Edit Surat Penelitian';
-        return view('user.admin.penelitian.edit', compact('penelitian', 'title'));
-    }
-
-    public function penelitianUpdate(Request $request, string $id)
-    {
-        $penelitian = Penelitian::findOrFail($id);
-
-        $request->validate([
-            'nomorSurat'    => 'unique:penelitian,nomorSurat,' . $penelitian->id,
-            'statusSurat' => 'required|in:pending,approved,rejected', // Validasi status
-        ]);
-        // Kirim notifikasi ke dosen
-        $dosenId = $request->input('dosen_id'); // ID dosen target
-        Notification::create([
-            'user_id' => $dosenId,
-            'title' => 'Data Penelitian Baru oleh Admin',
-            'message' => 'Admin telah membuat data Penelitian baru untuk Anda.',
-            'status' => 'unread',
-        ]);
-        $penelitian->update($request->all());
-        return redirect()->route('admin.penelitianView')->with('success', 'Data berhasil diupdate');
-    }
-    //end penelitian controller
-
-    //ketpub controller
-    public function ketpubView()
-    {
-        $ketpub = Ketpub::with('penulis')->get();
-        $today = date('Y-m-d');
-        $title = 'Surat Keterangan Publikasi ';
-        return view('user.admin.ketpub.index', compact('ketpub', 'today', 'title'));
-    }
-
-    public function ketpubEdit($id)
-    {
-        $ketpub = Ketpub::findOrFail($id);
-        $title = 'Edit Surat Keterangan Publikasi';
-        return view('user.admin.ketpub.edit', compact('ketpub', 'title'));
-    }
-
-    public function ketpubUpdate(Request $request, string $id)
-    {
-        $ketpub = Ketpub::findOrFail($id);
-
-        $request->validate([
-            'nomorSurat'    => 'unique:ketpub,nomorSurat,' . $ketpub->id,
-            'statusSurat' => 'required|in:pending,approved,rejected', // Validasi status
-        ]);
-        // Kirim notifikasi ke dosen
-        $dosenId = $request->input('dosen_id'); // ID dosen target
-        Notification::create([
-            'user_id' => $dosenId,
-            'title' => 'Data Keterangan Publik Baru oleh Admin',
-            'message' => 'Admin telah membuat data Keterangan Publik baru untuk Anda.',
-            'status' => 'unread',
-        ]);
-        $ketpub->update($request->all());
-        return redirect()->route('admin.ketpubView')->with('success', 'Data berhasil diupdate');
-    }
-    //end ketpub controller
-
-    //tugaspub controller
-    public function tugaspubView()
-    {
-        $tugaspub = Tugaspub::get();
-        $today = date('Y-m-d');
-        $title = 'Surat Tugas Publikasi';
-        return view('user.admin.tugaspub.index', compact('tugaspub', 'today', 'title'));
-    }
-
-    public function tugaspubEdit($id)
-    {
-        $tugaspub = tugaspub::findOrFail($id);
-        $title = 'Edit Surat Tugas Publikasi';
-        return view('user.admin.tugaspub.edit', compact('tugaspub', 'title'));
-    }
-
-    public function tugaspubUpdate(Request $request, string $id)
-    {
-        $tugaspub = Tugaspub::findOrFail($id);
-
-        $request->validate([
-            'nomorSurat'    => 'unique:tugaspub,nomorSurat,' . $tugaspub->id,
-            'statusSurat' => 'required|in:pending,approved,rejected', // Validasi status
-        ]);
-        // Kirim notifikasi ke dosen
-        $dosenId = $request->input('dosen_id'); // ID dosen target
-        Notification::create([
-            'user_id' => $dosenId,
-            'title' => 'Data Tugas Publik Baru oleh Admin',
-            'message' => 'Admin telah membuat data Tugas Publik baru untuk Anda.',
-            'status' => 'unread',
-        ]);
-        $tugaspub->update($request->all());
-        return redirect()->route('admin.tugaspubView')->with('success', 'Data berhasil diupdate');
-    }
-    //end tugaspub controller
+    }   
 
     //akun pengguna controller
     public function akunPenggunaView()
@@ -317,14 +133,29 @@ class AdminController extends BaseController
             'name'    => 'required',
             'email' => 'required|email|min:5|unique:users,email',
             'password'  => 'required|min:8',
-            'role' => 'required|min:5'
+            'role' => 'required|min:5',
+            'nomor_telepon' => 'required|regex:/^[0-9]{10,15}$/',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'nomor_telepon' => $request->nomor_telepon,
             'password' => $request->password,
             'role' => $request->role
+        ]);
+        // Jika role adalah ketua, tambahkan ke tabel ketuas
+        if ($request->role === 'ketua') {
+            Ketua::create([
+                'user_id' => $user->id,
+                // kolom lain bisa ditambahkan nanti (misal nama lengkap, nip, dsb)
+            ]);
+        }
+        Riwayat::create([
+            'user_id' => Auth::id(), // admin yang sedang login
+            'aksi' => 'Menambahkan akun pengguna baru',
+            'catatan' => 'Nama: ' . $request->name . ', Role: ' . $request->role,
+            'waktu_perubahan' => now(),
         ]);
 
         return redirect()->route('admin.akunPengguna')->with(['success' => 'Data berhasil Disimpan']);
@@ -346,11 +177,12 @@ class AdminController extends BaseController
             'name'    => 'required',
             'email' => 'required|email|min:5|unique:users,email,' . $user->id,
             'password' => 'nullable|min:8',
-            'role' => 'required|min:5'
+            'role' => 'required|min:5',
+            'nomor_telepon' => 'required|regex:/^[0-9]{10,15}$/',
         ]);
 
         // Ambil semua input kecuali password
-        $data = $request->only('name', 'email', 'role');
+        $data = $request->only('name', 'email', 'role', 'nomor_telepon');
 
         // Jika password diisi, hash password baru, jika tidak gunakan password lama
         if ($request->filled('password')) {
@@ -361,6 +193,12 @@ class AdminController extends BaseController
 
         // Update data ke database
         $user->update($data);
+        Riwayat::create([
+            'user_id' => Auth::id(), // admin yang sedang login
+            'aksi' => 'Mengupdate akun pengguna',
+            'catatan' => 'Nama: ' . $request->name . ', Role: ' . $request->role,
+            'waktu_perubahan' => now(),
+        ]);
 
         return redirect()->route('admin.akunPengguna')->with(['success' => 'Data berhasil Disimpan']);
     }
@@ -368,8 +206,14 @@ class AdminController extends BaseController
     public function akunPenggunaDestroy(string $id)
     {
         $user = User::findOrFail($id);
+        // Catat ke riwayat dulu sebelum hapus
+        Riwayat::create([
+            'user_id' => Auth::id(), // admin yang sedang login
+            'aksi' => 'Menghapus akun pengguna',
+            'catatan' => 'Nama: ' . $user->name . ', Role: ' . $user->role,
+            'waktu_perubahan' => now(),
+        ]);
         $user->delete();
-
         return redirect()->route('admin.akunPengguna')->with(['success' => 'Data berhasil Disimpan']);
     }
     //end controller akun pengguna

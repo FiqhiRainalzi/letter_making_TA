@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\VerifyEmail;
+use App\Models\Petugas;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,21 +32,27 @@ class SesiController extends BaseController
 
     public function regisCreate(Request $request)
     {
-        $request->validate([
-            'name' => 'required|unique:users,name',
-            'password' => 'required|confirmed',
-            'email' => [
-                'required',
-                'email',
-                'regex:/^[a-zA-Z0-9._%+-]+@pnc\.ac\.id$/',
-                'unique:users,email',
+        $request->validate(
+            [
+                'name' => 'required|unique:users,name',
+                'password' => 'required|confirmed',
+                'nomor_telepon' => 'required|regex:/^[0-9]{10,15}$/',
+                'email' => [
+                    'required',
+                    'email',
+                    'regex:/^[a-zA-Z0-9._%+-]+@pnc\.ac\.id$/',
+                    'unique:users,email',
+                ],
             ],
-        ], [
-            'name.unique' => 'Nama sudah terdaftar.',
-            'password.confirmed' => 'Konfirmasi password tidak sesuai.',
-            'email.regex' => 'Email tidak sesuai dengan format yang diperbolehkan.',
-            'email.unique' => 'Email sudah terdaftar.',
-        ]);
+            [
+                'name.unique' => 'Nama sudah terdaftar.',
+                'password.confirmed' => 'Konfirmasi password tidak sesuai.',
+                'email.regex' => 'Email tidak sesuai dengan format yang diperbolehkan.',
+                'email.unique' => 'Email sudah terdaftar.',
+                'nomor_telepon.required' => 'Nomor telepon wajib diisi.',
+                'nomor_telepon.regex' => 'Nomor telepon harus berupa angka 10-15 digit.',
+            ]
+        );
 
 
         // Cek apakah tabel users kosong
@@ -56,8 +63,17 @@ class SesiController extends BaseController
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'nomor_telepon' => $request->nomor_telepon,
             'role' => $role,
         ]);
+
+        // Jika role-nya admin, buat entri petugas
+        if ($role === 'admin') {
+            Petugas::create([
+                'user_id' => $user->id,
+                // Kolom lain bisa diisi nanti (null dulu)
+            ]);
+        }
 
         event(new Registered($user));
 

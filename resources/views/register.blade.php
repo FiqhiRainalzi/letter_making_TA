@@ -81,6 +81,15 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
+                                    <label class="form-label">Nomor Telepon</label>
+                                    <input value="{{ old('nomor_telepon') }}" type="text" name="nomor_telepon"
+                                        class="form-control @error('nomor_telepon') is-invalid @enderror" required>
+                                    @error('nomor_telepon')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12">
                                     <label class="form-label">Password</label>
                                     <input type="password" name="password"
                                         class="form-control @error('password') is-invalid @enderror" required>

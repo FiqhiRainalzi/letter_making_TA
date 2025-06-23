@@ -21,7 +21,6 @@
             margin: 0 auto;
             padding: 20px;
             position: relative;
-
         }
 
         .content {
@@ -45,14 +44,6 @@
         .center-text {
             line-height: 1.00;
             text-align: center;
-        }
-
-        .inventor-list {
-            margin-left: flex;
-        }
-
-        .inventor-list td {
-            padding-right: 10px;
         }
 
         .info-table {
@@ -93,12 +84,6 @@
             background-color: #d9d9d9;
         }
 
-        .inline-list {
-            display: inline;
-            /* Membuat daftar tampil dalam satu baris */
-            padding-left: 10px;
-            /* Jarak antara ":" dan daftar */
-        }
 
         .title-adjust {
             padding-top: 0px;
@@ -106,40 +91,9 @@
             margin-top: -30px;
             /* Atur sesuai dengan kebutuhan */
         }
-
-        /* Print styles */
-        @media print {
-
-            .header,
-            .footer {
-                position: fixed;
-                width: 100%;
-                left: 0;
-                right: 0;
-                text-align: center;
-            }
-
-            .header {
-                top: 0;
-                height: 120px;
-                /* Sesuaikan dengan tinggi header */
-            }
-
-            .footer {
-                bottom: 0;
-                height: 36px;
-                /* Sesuaikan dengan tinggi footer */
-            }
-
-            .content {
-                padding-top: 140px;
-                /* Sesuaikan dengan tinggi header */
-                padding-bottom: 56px;
-                /* Sesuaikan dengan tinggi footer */
-                margin: 0;
-            }
-        }
     </style>
+
+    {{-- halaman pertama --}}
 
     <body>
         <a href="{{ url()->previous() }}" class="btn btn-sm btn-dark mb-3 mt-3">
@@ -148,7 +102,7 @@
         <a href="{{ route('admin.penelitianDownload', $penelitian->id) }}"class="btn btn-sm btn-primary">Download <i
                 class="bi bi-download"></i></a>
         <div class="container">
-            <div class="content" >
+            <div class="content">
                 <p style="margin-top:0pt; margin-bottom:0pt; line-height:normal;">
                     <span style="height:0pt; display:block; position:absolute; z-index:-65537;">
                         <img style="margin: 0 0 0 auto; display: block;" width="700" height="120"
@@ -158,7 +112,9 @@
                 <p style="margin-top: 3cm" class="center-text"><strong>SURAT TUGAS</strong></p>
                 <p class="center-text"><strong>MELAKSANAKAN KEGIATAN PENELITIAN</strong></p>
                 <p class="center-text"><strong>BAGI DOSEN POLITEKNIK NEGERI CILACAP</strong></p>
-                <p class="center-text"><strong>Nomor : {{ $penelitian->nomorSurat ?: '-' }}</strong></p>
+                <p class="center-text"><strong>Nomor :
+                        {{ $penelitian->nomorSurat ?: '-' }}/{{ \Carbon\Carbon::parse($penelitian->tanggal)->translatedFormat('Y') }}</strong>
+                </p>
                 <p class="center-text">&nbsp;</p>
                 <p class="justify-text" style="text-indent: 30px">Berdasarkan kewajiban Dosen dalam Tridharma Perguruan
                     Tinggi, Politeknik Negeri Cilacap memberikan tugas
@@ -180,7 +136,14 @@
                         <td>Jurusan/Program Studi</td>
                         <td>: {{ $penelitian->jurusanProdi }}</td>
                     </tr>
-
+                    <tr>
+                        <td>Anggota</td>
+                        <td>: Terlampir</td>
+                    </tr>
+                    <tr>
+                        <td>Tenaga Pembantu Peneliti</td>
+                        <td>: Terlampir</td>
+                    </tr>
                 </table>
                 <p class="justify-text">untuk melaksanakan penelitian dengan judul :
                     <strong>"{{ $penelitian->judul }}"</strong> sesuai
@@ -225,7 +188,10 @@
             </div>
         </div>
     </body>
-<hr>
+
+    {{-- halaman kedua --}}
+    <hr>
+
     <body>
         <div class="container">
             <div class="content">
@@ -236,7 +202,7 @@
                     </span>&nbsp;
                 </p>
                 <p style="margin-top: 3cm" class="left-text"><strong>Lampiran Surat tugas :
-                        {{ $penelitian->nomorSurat?: '-'  }}/{{ \Carbon\Carbon::parse($penelitian->tanggal)->translatedFormat('Y') }}</strong>
+                        {{ $penelitian->nomorSurat ?: '-' }}/{{ \Carbon\Carbon::parse($penelitian->tanggal)->translatedFormat('Y') }}</strong>
                 </p>
 
                 {{-- tenaga anggota --}}
@@ -249,14 +215,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($penelitian->anggota as $index => $anggota)
+                        @forelse ($penelitian->anggota as $index => $anggota)
                             <tr>
-                                <td class="center-text">{{ $index + 1 }}.</td>
+                                <td class="center-text">{{ $index + 1 }}</td>
                                 <td>{{ $anggota->nama }}</td>
-                                <td>{{ $anggota->prodi }}</td>
+                                <td>{{ $anggota->prodi->nama ?? '-' }}</td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center">Tidak ada data anggota.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
+
                 </table>
 
                 {{-- table tenaga --}}
@@ -269,13 +240,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($penelitian->tenagaPembantu as $index => $tenagaPembantu)
+                        @forelse ($penelitian->tenagaPembantu as $index => $tenagaPembantu)
                             <tr>
-                                <td class="center-text">{{ $index + 1 }}.</td>
+                                <td class="center-text">{{ $index + 1 }}</td>
                                 <td>{{ $tenagaPembantu->nama }}</td>
-                                <td>{{ $tenagaPembantu->status }}</td>
+                                <td>{{ $tenagaPembantu->prodi->nama ?? '-' }}</td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center">Tidak ada data anggota.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
 

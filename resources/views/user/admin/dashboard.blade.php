@@ -105,98 +105,17 @@
             </div>
             @if (Auth::user()->role == 'admin')
                 <hr>
-                {{-- container grafik --}}
-                <div class="col-md-12">
-                    <h5 class="card-title">Statistik Publikasi Berdasarkan Prodi dan Tahun</h5>
-                    <div class="card">
-                        <div class="card-body">
-                            <div style="width: 800px; height: 400px;">
-                                <canvas id="prodiChart"></canvas>                                
-                            </div>
-                        </div>
-                    </div>
+                <div class="container">
+                    <h2 class="text-center mb-4">Statistik Jumlah Surat per Jenis</h2>
+                    {!! $chart->container() !!}
+                    {!! $chartBulanan->container() !!}
+                    {!! $chartTopUser->container() !!}
                 </div>
+                {{-- Include Chart JS --}}
+                <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0"></script>
+                {{ $chart->script() }}
+                {{ $chartBulanan->script() }}
+                {{ $chartTopUser->script() }}
             @endif
     </section>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('prodiChart').getContext('2d');
-
-            // Mengambil data yang dikirim dari PHP
-            const prodiData = @json($prodiData); // Data dari controller
-
-            // Mengonversi data untuk Chart.js
-            const years = Object.keys(prodiData); // Tahun sebagai label X
-            const prodiNames = [...new Set(Object.values(prodiData).flatMap(year => Object.keys(year)))];
-
-            const datasets = prodiNames.map((prodi, index) => {
-                return {
-                    label: prodi,
-                    data: years.map(year => prodiData[year][prodi]?.total || 0),
-                    backgroundColor: `hsl(${(index * 60) % 360}, 70%, 50%)`,
-                    borderColor: `hsl(${(index * 60) % 360}, 70%, 40%)`,
-                    borderWidth: 1,
-                };
-            });
-
-            // Membuat grafik
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: years, // Tahun sebagai label X
-                    datasets: datasets // Dataset berdasarkan prodi
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    const year = years[tooltipItem.dataIndex];
-                                    const prodi = tooltipItem.dataset.label;
-                                    const kategoriData = prodiData[year][prodi]?.kategori || {};
-
-                                    let kategoriText =
-                                        `Jumlah: ${tooltipItem.raw}\nKategori Publikasi:\n`;
-                                    for (const [kategori, jumlah] of Object.entries(kategoriData)) {
-                                        kategoriText += `- ${kategori}: ${jumlah}\n`;
-                                    }
-
-                                    return kategoriText.trim();
-                                }
-                            }
-                        },
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Jumlah Publikasi'
-                            },
-                            ticks: {
-                                stepSize: 1, // Naik satu per satu
-                                precision: 0, // Pastikan angka bulat
-                            },
-                            suggestedMax: 10, // Saran batas maksimum sumbu Y
-                            suggestedMin: 0, // Saran batas minimum sumbu Y
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Periode Tahun'
-                            }
-                        }
-                    }
-                }
-
-            });
-        });
-    </script>
 @endsection

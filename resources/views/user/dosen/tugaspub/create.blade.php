@@ -20,7 +20,6 @@
                                 <i class="bi bi-arrow-left"></i> Kembali
                             </a>
                             @csrf
-
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Kategori Jurnal</label>
                                 <select class="form-control @error('kategori_jurnal') is-invalid @enderror"
@@ -177,7 +176,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">ISSN/ISBN</label>
                                 <input type="text" class="form-control @error('issn') is-invalid @enderror"
@@ -203,29 +202,41 @@
                                     </div>
                                 @enderror
                             </div>
-
-                            <div id="penulis-fields">
-                                <div class="row inventor-row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label>Nama Penulis</label>
-                                            <input type="text" name="penulis[0][nama]" class="form-control"
-                                                placeholder="Masukkan Nama Penulis">
-                                        </div>
+                            <!-- Penulis -->
+                            <div class="card mb-4">
+                                <div class="card-header">Penulis Penelitian (Maksimal 10)</div>
+                                <div class="card-body">
+                                    <div id="penulis-fields">
+                                        @for ($i = 0; $i < 10; $i++)
+                                            <div class="row mb-3 penulis-form mb-3 @if ($i >= 3) d-none @endif"
+                                                id="penulis-{{ $i }}">
+                                                <div class="col-md-6">
+                                                    <label for="penulis[{{ $i }}][nama]">Nama Penulis
+                                                        {{ $i + 1 }}</label>
+                                                    <input type="text" name="penulis[{{ $i }}][nama]"
+                                                        class="form-control" value="{{ old("penulis.$i.nama") }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="penulis[{{ $i }}][prodi_id]">Prodi</label>
+                                                    <select name="penulis[{{ $i }}][prodi_id]"
+                                                        class="form-control">
+                                                        <option value="">-- Pilih Prodi --</option>
+                                                        @foreach ($prodis as $prodi)
+                                                            <option value="{{ $prodi->id }}"
+                                                                {{ old("penulis.$i.prodi_id") == $prodi->id ? 'selected' : '' }}>
+                                                                {{ $prodi->nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        @endfor
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label>Jurusan/Program Studi</label>
-                                            <input type="text" name="penulis[0][prodi]" class="form-control"
-                                                placeholder="Masukkan Jurusan">
-                                        </div>
-                                    </div>
+                                    <button type="button" class="btn btn-secondary"
+                                        id="tampilkan-semua-penulis">Tampilkan
+                                        Semua Penulis</button>
                                 </div>
                             </div>
-
-
-                            <button type="button" class="btn btn-success mb-3" id="add-penulis-prodi-btn">Tambah
-                                Penulis</button>
 
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Tanggal Pembuatan</label>
@@ -251,29 +262,12 @@
     </div>
 
     <script>
-        let penulisIndex = 1; // Mulai dari index 1 karena 0 sudah ada
-
-        document.getElementById('add-penulis-prodi-btn').addEventListener('click', function() {
-            // Membuat elemen div baru untuk baris penulis dan prodi
-            let newRow = document.createElement('div');
-            newRow.classList.add('row', 'penulis-prodi-row', 'mb-3');
-
-            // Isi HTML untuk input nama penulis dan jurusan/prodi
-            newRow.innerHTML = `
-                                <div class="col-md-6">
-                                    <label class="font-weight-bold">Nama Penulis</label>
-                                    <input type="text" class="form-control" name="penulis[${penulisIndex}][nama]" placeholder="Masukkan Nama Penulis">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="font-weight-bold">Jurusan/Prodi</label>
-                                    <input type="text" class="form-control" name="penulis[${penulisIndex}][prodi]" placeholder="Masukkan Jurusan/Prodi">
-                                </div>
-                            `;
-
-
-            // Menambahkan baris input baru ke container penulis
-            document.getElementById('penulis-fields').appendChild(newRow);
-            penulisIndex++;
+        // Script untuk menampilkan semua input penulis
+        document.getElementById('tampilkan-semua-penulis').addEventListener('click', function() {
+            for (let i = 3; i < 10; i++) {
+                document.getElementById(`penulis-${i}`).classList.remove('d-none');
+            }
+            this.style.display = 'none'; // Sembunyikan tombol setelah diklik
         });
     </script>
 @endsection

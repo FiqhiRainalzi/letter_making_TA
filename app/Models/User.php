@@ -6,11 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Hki; 
-use App\Models\Ketpub; 
-use App\Models\Penelitian; 
-use App\Models\Pkm; 
-use App\Models\Tugaspub; 
+
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -26,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'nomor_telepon',
     ];
 
     /**
@@ -47,31 +44,35 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed', 
+            'password' => 'hashed',
         ];
     }
 
-    public function hkis() {
-        return $this->hasMany(Hki::class);
-    }
-    
-    public function ketpubs(){
-        return $this->hasMany(Ketpub::class);
+    public function ajuanSurats()
+    {
+        return $this->hasMany(AjuanSurat::class);
     }
 
-    public function penelitians(){
-        return $this->hasMany(Penelitian::class);
+    public function riwayats()
+    {
+        return $this->hasMany(Riwayat::class);
     }
 
-    public function pkms(){
-        return $this->hasMany(Pkm::class);
+    public function laporans()
+    {
+        return $this->hasMany(Laporan::class);
     }
 
-    public function tugaspubs(){
-        return $this->hasMany(Tugaspub::class);
-    }
- 
-    public function notifications(){
+    public function notifications()
+    {
         return $this->hasMany(Notification::class);
+    }
+    public function ketua()
+    {
+        return $this->hasOne(Ketua::class);
+    }
+    public function petugas()
+    {
+        return $this->hasOne(Petugas::class);
     }
 }

@@ -8,16 +8,23 @@ use Illuminate\Database\Eloquent\Model;
 class Anggota extends Model
 {
     use HasFactory;
-
-    protected $fillable = ['pkm_id', 'penelitian_id', 'nama', 'prodi'];
     protected $table = 'anggota';
+    protected $fillable = ['nama', 'penelitian_id', 'prodi_id', 'pkm_id'];
+
+    // Relasi ke tabel penelitian
+    public function penelitian()
+    {
+        return $this->belongsTo(Penelitian::class);
+    }
+    // Relasi ke tabel pkm
     public function pkm()
     {
         return $this->belongsTo(Pkm::class);
     }
 
-    public function penelitian()
+    // Relasi ke tabel prodi
+    public function prodi()
     {
-        return $this->belongsTo(Penelitian::class);
+        return $this->belongsTo(Prodi::class);
     }
 }

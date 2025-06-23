@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 @section('content')
     <div class="pagetitle">
-        <h1>Surat PKM</h1>
+        <h1>Surat Tugas PKM</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('admin.home') }}">Home</a></li>
-                <li class="breadcrumb-item active">Surat PKM</li>
-                <li class="breadcrumb-item active">Membuat Surat PKM</li>
+                <li class="breadcrumb-item active">Surat Tugas PKM</li>
+                <li class="breadcrumb-item active">Membuat Surat Tugas PKM</li>
             </ol>
         </nav>
     </div><!-- End Page Title -->
@@ -20,107 +20,155 @@
                                 <i class="bi bi-arrow-left"></i> Kembali
                             </a>
                             @csrf
-                            {{-- nama ketua --}}
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Nama Ketua</label>
-                                <input type="text" class="form-control @error('namaKetua') is-invalid @enderror"
-                                    name="namaKetua" value="{{ old('namaKetua') }}" placeholder="Masukkan Nama Ketua">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Nama Ketua</label>
+                                        <input type="text" class="form-control @error('namaKetua') is-invalid @enderror"
+                                            name="namaKetua" value="{{ old('namaKetua') }}"
+                                            placeholder="Masukkan Nama Ketua">
 
-                                <!-- error message untuk title -->
-                                @error('namaKetua')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                            {{-- nidn --}}
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">NIP/NIDN</label>
-                                <input class="form-control @error('nipNidn') is-invalid @enderror" name="nipNidn"
-                                    rows="5" value="{{ old('nipNidn') }}" placeholder="Masukkan Alamat Pemegang Hak">
-                                <!-- error message untuk nipNidn -->
-                                @error('nipNidn')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-
-                            </div>
-                            {{-- jabatan --}}
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Jabatan Akademik</label>
-                                <input type="text" class="form-control @error('jabatanAkademik') is-invalid @enderror"
-                                    name="jabatanAkademik" value="{{ old('jabatanAkademik') }}"
-                                    placeholder="Masukkan Jabatan Akademik">
-
-                                <!-- error message untuk jabatanAkad -->
-                                @error('jabatanAkademik')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                            {{-- prodi --}}
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Jurusan/Program Studi</label>
-                                <input type="text" class="form-control @error('jurusanProdi') is-invalid @enderror"
-                                    name="jurusanProdi" value="{{ old('jurusanProdi') }}"
-                                    placeholder="Masukkan Jurusan/Program Studi">
-
-                                <!-- error message untuk jurusanProdi -->
-                                @error('jurusanProdi')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                            <!-- Anggot dan tenaga pembantu -->
-                            <div id="anggota-fields">
-                                <div class="row tenaga-row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label class="font-weight-bold">Anggota</label>
-                                            <input type="text" class="form-control" name="anggota[0][nama]"
-                                                placeholder="Masukkan Nama Anggota">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label class="font-weight-bold">Prodi</label>
-                                            <input type="text" class="form-control" name="anggota[0][prodi]"
-                                                placeholder="Masukkan Prodi Anggota">
-                                        </div>
+                                        <!-- error message untuk title -->
+                                        @error('namaKetua')
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
                                     </div>
                                 </div>
 
-                            </div>
-                            <button type="button" class="btn btn-success mb-3" id="add-anggota-btn">Tambah Anggota</button>
-
-                            <div id="tenaga-fields">
-                                <div class="row tenaga-row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label class="font-weight-bold">Tenaga Pembantu</label>
-                                            <input type="text" class="form-control" name="tenaga[0][nama]"
-                                                placeholder="Masukkan Nama Tenaga Pembantu">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label class="font-weight-bold">Status</label>
-                                            <input type="text" class="form-control" name="tenaga[0][status]"
-                                                placeholder="Masukkan Status Tenaga Pembantu">
-                                        </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">NIP/NIDN</label>
+                                        <input class="form-control @error('nipNidn') is-invalid @enderror" name="nipNidn"
+                                            rows="5" value="{{ old('nipNidn') }}"
+                                            placeholder="Masukkan Alamat Pemegang Hak">
+                                        <!-- error message untuk nipNidn -->
+                                        @error('nipNidn')
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-success mb-3" id="add-tenaga-btn">Tambah Tenaga
-                                Pembantu</button>
-                            {{-- judul --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Jabatan Akademik</label>
+                                        <input type="text"
+                                            class="form-control @error('jabatanAkademik') is-invalid @enderror"
+                                            name="jabatanAkademik" value="{{ old('jabatanAkademik') }}"
+                                            placeholder="Masukkan Jabatan Akademik">
+
+                                        <!-- error message untuk jabatanAkad -->
+                                        @error('jabatanAkademik')
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Jurusan/Program Studi</label>
+                                        <input type="text"
+                                            class="form-control @error('jurusanProdi') is-invalid @enderror"
+                                            name="jurusanProdi" value="{{ old('jurusanProdi') }}"
+                                            placeholder="Masukkan Jabatan Akademik">
+                                        {{-- <select class="form-control @error('jurusanProdi') is-invalid @enderror"
+                                            name="jurusanProdi"> --}}
+                                        {{-- <option value="">-- Pilih Jurusan/Prodi --</option>
+                                            @foreach ($prodis as $prodi)
+                                                <option value="{{ $prodi->id }}"
+                                                    {{ old('jurusanProdi') == $prodi->id ? 'selected' : '' }}>
+                                                    {{ $prodi->nama }}
+                                                </option>
+                                            @endforeach --}}
+                                        </select>
+
+                                        @error('jurusanProdi')
+                                            <div class="alert alert-danger mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Anggota pkm -->
+                            <div class="card mb-4">
+                                <div class="card-header">Anggota PKM (Maksimal 10)</div>
+                                <div class="card-body">
+                                    <div id="anggota-fields">
+                                        @for ($i = 0; $i < 10; $i++)
+                                            <div class="row mb-3 anggota-form mb-3 @if ($i >= 3) d-none @endif"
+                                                id="anggota-{{ $i }}">
+                                                <div class="col-md-6">
+                                                    <label for="anggota[{{ $i }}][nama]">Nama Anggota
+                                                        {{ $i + 1 }}</label>
+                                                    <input type="text" name="anggota[{{ $i }}][nama]"
+                                                        class="form-control" value="{{ old("anggota.$i.nama") }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="anggota[{{ $i }}][prodi_id]">Prodi</label>
+                                                    <select name="anggota[{{ $i }}][prodi_id]"
+                                                        class="form-control">
+                                                        <option value="">-- Pilih Prodi --</option>
+                                                        @foreach ($prodis as $prodi)
+                                                            <option value="{{ $prodi->id }}"
+                                                                {{ old("anggota.$i.prodi_id") == $prodi->id ? 'selected' : '' }}>
+                                                                {{ $prodi->nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" id="tampilkan-semua-anggota">Tampilkan
+                                        Semua Anggota</button>
+                                </div>
+                            </div>
+
+                            <!-- Tenaga Pembantu -->
+                            <div class="card mb-4">
+                                <div class="card-header">Tenaga Pembantu (Maksimal 10)</div>
+                                <div class="card-body">
+                                    <div id="tenaga-fields">
+                                        @for ($i = 0; $i < 10; $i++)
+                                            <div class="row mb-3 tenaga-form mb-3 @if ($i >= 3) d-none @endif"
+                                                id="tenaga-{{ $i }}">
+                                                <div class="col-md-6">
+                                                    <label for="tenaga_pembantu[{{ $i }}][nama]">Nama Tenaga
+                                                        Pembantu {{ $i + 1 }}</label>
+                                                    <input type="text" name="tenaga_pembantu[{{ $i }}][nama]"
+                                                        class="form-control" value="{{ old("tenaga_pembantu.$i.nama") }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label
+                                                        for="tenaga_pembantu[{{ $i }}][prodi_id]">Prodi</label>
+                                                    <select name="tenaga_pembantu[{{ $i }}][prodi_id]"
+                                                        class="form-control">
+                                                        <option value="">-- Pilih Prodi --</option>
+                                                        @foreach ($prodis as $prodi)
+                                                            <option value="{{ $prodi->id }}"
+                                                                {{ old("anggota.$i.prodi_id") == $prodi->id ? 'selected' : '' }}>
+                                                                {{ $prodi->nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" id="tampilkan-semua-tenaga">Tampilkan
+                                        Semua Tenaga Pembantu</button>
+                                </div>
+                            </div>
+
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Judul</label>
                                 <input type="text" class="form-control @error('judul') is-invalid @enderror"
-                                    name="judul" value="{{ old('judul') }}" placeholder="Masukkan Judul Penelitian">
+                                    name="judul" value="{{ old('judul') }}" placeholder="Masukkan Judul pkm">
 
                                 <!-- error message untuk judul -->
                                 @error('judul')
@@ -129,38 +177,42 @@
                                     </div>
                                 @enderror
                             </div>
-                            {{-- skim --}}
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Skim</label>
-                                <input type="text" class="form-control @error('skim') is-invalid @enderror"
-                                    name="skim" value="{{ old('skim') }}" placeholder="Masukkan Skim PKM">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Skim</label>
+                                        <input type="text" class="form-control @error('skim') is-invalid @enderror"
+                                            name="skim" value="{{ old('skim') }}" placeholder="Masukkan Skim pkm">
 
-                                <!-- error message untuk skim -->
-                                @error('skim')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
+                                        <!-- error message untuk skim -->
+                                        @error('skim')
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
                                     </div>
-                                @enderror
-                            </div>
-                            {{-- dasar pel --}}
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold">Dasar Pelaksanaan</label>
-                                <input type="text" class="form-control @error('dasarPelaksanaan') is-invalid @enderror"
-                                    name="dasarPelaksanaan" value="{{ old('dasarPelaksanaan') }}"
-                                    placeholder="Masukkan Dasar Pelaksanaan">
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Dasar Pelaksanaan</label>
+                                        <input type="text"
+                                            class="form-control @error('dasarPelaksanaan') is-invalid @enderror"
+                                            name="dasarPelaksanaan" value="{{ old('dasarPelaksanaan') }}"
+                                            placeholder="Masukkan Dasar Pelaksanaan">
 
-                                <!-- error message untuk dasarPelaksanaan -->
-                                @error('dasarPelaksanaan')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
+                                        <!-- error message untuk dasarPelaksanaan -->
+                                        @error('dasarPelaksanaan')
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
                                     </div>
-                                @enderror
+                                </div>
                             </div>
-                            {{-- lokasi --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Lokasi</label>
                                 <input type="text" class="form-control @error('lokasi') is-invalid @enderror"
-                                    name="lokasi" value="{{ old('lokasi') }}" placeholder="Masukkan Lokasi Penelitian">
+                                    name="lokasi" value="{{ old('lokasi') }}" placeholder="Masukkan Lokasi pkm">
 
                                 <!-- error message untuk lokasi -->
                                 @error('lokasi')
@@ -169,7 +221,7 @@
                                     </div>
                                 @enderror
                             </div>
-                            {{-- bulan pel --}}
+                            {{-- bulan pelaksanaan --}}
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
@@ -228,78 +280,24 @@
             </div>
         </div>
     </div>
-
+    </div>
+    </div>
     <script>
-        let anggotaCount = 1;
-        const maxAnggota = 10; // Batas maksimal anggota
-
-        document.getElementById('add-anggota-btn').addEventListener('click', function() {
-            if (anggotaCount >= maxAnggota) {
-                alert("Maksimal hanya dapat menambahkan 10 anggota.");
-                return;
+        // Script untuk menampilkan semua input anggota
+        document.getElementById('tampilkan-semua-anggota').addEventListener('click', function() {
+            for (let i = 3; i < 10; i++) {
+                document.getElementById(`anggota-${i}`).classList.remove('d-none');
             }
-
-            let newAnggotaField = document.createElement('div');
-            newAnggotaField.classList.add('row', 'tenaga-row');
-
-            newAnggotaField.innerHTML = `
-            <div class="col-md-6">
-                <div class="form-group mb-3">
-                    <label class="font-weight-bold">Anggota ${anggotaCount + 1}</label>
-                    <input type="text" class="form-control" name="anggota[${anggotaCount}][nama]" placeholder="Masukkan Nama Anggota">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group mb-3">
-                    <label class="font-weight-bold">Prodi ${anggotaCount + 1}</label>
-                    <input type="text" class="form-control" name="anggota[${anggotaCount}][prodi]" placeholder="Masukkan Prodi Anggota">
-                </div>
-            </div>
-            `;
-
-            document.getElementById('anggota-fields').appendChild(newAnggotaField);
-            anggotaCount++;
-
-            if (anggotaCount >= maxAnggota) {
-                alert("Anda sudah mencapai batas maksimal 10 anggota.");
-                document.getElementById('add-anggota-btn').disabled = true;
-            }
+            this.style.display = 'none'; // Sembunyikan tombol setelah diklik
         });
 
-        let tenagaCount = 1;
-        const maxTenaga = 10; // Batas maksimal tenaga pembantu
-
-        document.getElementById('add-tenaga-btn').addEventListener('click', function() {
-            if (tenagaCount >= maxTenaga) {
-                alert("Maksimal hanya dapat menambahkan 10 tenaga pembantu.");
-                return;
+        // Script untuk menampilkan semua input tenaga pembantu
+        document.getElementById('tampilkan-semua-tenaga').addEventListener('click', function() {
+            for (let i = 3; i < 10; i++) {
+                document.getElementById(`tenaga-${i}`).classList.remove('d-none');
             }
-
-            let newTenagaField = document.createElement('div');
-            newTenagaField.classList.add('row', 'tenaga-row');
-
-            newTenagaField.innerHTML = `
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">Tenaga Pembantu ${tenagaCount + 1}</label>
-                        <input type="text" class="form-control" name="tenaga[${tenagaCount}][nama]" placeholder="Masukkan Nama Tenaga Pembantu">
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">Status ${tenagaCount + 1}</label>
-                        <input type="text" class="form-control" name="tenaga[${tenagaCount}][status]" placeholder="Masukkan Status Tenaga Pembantu">
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('tenaga-fields').appendChild(newTenagaField);
-            tenagaCount++;
-
-            if (tenagaCount >= maxTenaga) {
-                alert("Anda sudah mencapai batas maksimal 10 tenaga pembantu.");
-                document.getElementById('add-tenaga-btn').disabled = true;
-            }
+            this.style.display = 'none'; // Sembunyikan tombol setelah diklik
         });
     </script>
+
 @endsection

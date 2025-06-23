@@ -17,14 +17,16 @@
                     <hr>
                 </div>
                 <div class="card">
-                    <div class="card-body">                        
+                    <div class="card-body">
                         <table class="table datatable">
                             <thead>
                                 <tr>
                                     <th scope="col">No</th>
+                                    <th scope="col">Tanggal Pembuatan</th>
                                     <th scope="col">Nama Ketua</th>
                                     <th scope="col">Judul</th>
                                     <th scope="col">Status</th>
+                                    <th scope="col">Lama Proses (hari)</th>
                                     <th scope="col" style="width: 20%">Aksi</th>
                                 </tr>
                             </thead>
@@ -32,16 +34,24 @@
                                 @forelse ($penelitian as $p)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $p->created_at->translatedFormat('d F Y') }}</td>
                                         <td>{{ $p->namaKetua }}</td>
                                         <td>{{ $p->judul }}</td>
                                         <td>
-                                            @if($p->statusSurat == 'approved')
-                                                <span class="badge bg-success">Approved</span>
-                                            @elseif($p->statusSurat == 'pending')
-                                                <span class="badge bg-warning">Pending</span>
-                                            @elseif($p->statusSurat == 'rejected')
-                                                <span class="badge bg-danger">Rejected</span>
+                                            @if ($p->statusSurat == 'draft')
+                                                <span class="badge bg-secondary">Draf</span>
+                                            @elseif ($p->statusSurat == 'approved')
+                                                <span class="badge bg-success">Diterima</span>
+                                            @elseif ($p->statusSurat == 'ready_for_pickup')
+                                                <span class="badge bg-warning">Siap Diambil</span>
+                                            @elseif ($p->statusSurat == 'picked_up')
+                                                <span class="badge bg-success">Sudah Diambil</span>
+                                            @elseif ($p->statusSurat == 'rejected')
+                                                <span class="badge bg-danger">Ditolak</span>
                                             @endif
+                                        </td>
+                                        <td class="text-center">
+                                            {{ floor($p->lama_proses) }} hari
                                         </td>
                                         <td class="text-center align-middle">
                                             <a href="{{ route('admin.penelitianShow', $p->id) }}"

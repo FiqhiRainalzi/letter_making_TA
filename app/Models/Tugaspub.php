@@ -14,7 +14,6 @@ class Tugaspub extends Model
         'nomorSurat',
         'kategori_jurnal',
         'user_id',
-        'statusSurat',
         'namaPublikasi',
         'penerbit',
         'alamat',
@@ -25,14 +24,26 @@ class Tugaspub extends Model
         'akreditas',
         'issn',
         'judul',
+        'ajuan_surat_id',
         'tanggal',
+        'kode_surat_id',
     ];
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    public function ajuanSurat()
+    {
+        return $this->belongsTo(AjuanSurat::class);
+    }
+
     public function penulis()
     {
         return $this->hasMany(Penulis::class);
+    }
+    public function kodeSurat()
+    {
+        return $this->belongsTo(KodeSurat::class);
     }
 }

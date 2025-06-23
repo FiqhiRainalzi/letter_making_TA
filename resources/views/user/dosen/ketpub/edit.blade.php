@@ -194,51 +194,81 @@
                                     </div>
                                 @enderror
                             </div>
-                            <div id="penulis-fields">
-                                <!-- Inisialisasi penulis dengan data yang ada -->
-                                @foreach ($ketpub->penulis as $index => $penulis)
-                                    <div class="row penulis-prodi-row mb-3">
-                                        <div class="col-md-6">
-                                            <label class="font-weight-bold">Nama Penulis Ke-{{ $index + 1 }}</label>
-                                            <input type="text" class="form-control"
-                                                name="penulis[{{ $index }}][nama]"
-                                                value="{{ old('penulis.' . $index . '.nama', $penulis->nama) }}"
-                                                placeholder="Masukkan Nama Penulis">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="font-weight-bold">Jurusan/Prodi</label>
-                                            <input type="text" class="form-control"
-                                                name="penulis[{{ $index }}][prodi]"
-                                                value="{{ old('penulis.' . $index . '.prodi', $penulis->jurusan_prodi) }}"
-                                                placeholder="Masukkan Jurusan/Prodi">
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            <button type="button" class="btn btn-success" id="add-penulis-prodi-btn">Tambah
-                                Penulis</button>
-                            {{-- tanggal --}}
-                            <div class="row inventor-row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <label hidden class="font-weight-bold">Tanggal Pembuatan</label>
-                                        <input hidden type="date"
-                                            class="form-control @error('tanggal') is-invalid @enderror" name="tanggal"
-                                            rows="5" value="{{ old('tanggal', $today ?? date('Y-m-d')) }}"
-                                            placeholder="Masukkan Alamat Pemegang Hak">
-                                        <!-- error message untuk tanggal -->
-                                        @error('tanggal')
-                                            <div class="alert alert-danger mt-2">
-                                                {{ $message }}
+                            <!-- Penulis -->
+                            <div class="card mb-4">
+                                <div class="card-header">Penulis (Maksimal 10)</div>
+                                <div class="card-body">
+                                    <div id="penulis-fields">
+                                        @for ($i = 0; $i < 10; $i++)
+                                            @php
+                                                $penulis = $ketpub->penulis->get($i); // Ambil data Penulis ke-$i
+                                            @endphp
+                                            <div class="row mb-3 penulis-form @if ($i >= 3) d-none @endif"
+                                                id="penulis-{{ $i }}">
+                                                <div class="col-md-6">
+                                                    <label for="penulis[{{ $i }}][nama]">Nama Penulis
+                                                         {{ $i + 1 }}</label>
+                                                    <input type="text" name="penulis[{{ $i }}][nama]"
+                                                        class="form-control"
+                                                        value="{{ old("penulis.$i.nama", $penulis->nama ?? '') }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="penulis[{{ $i }}][prodi_id]">Prodi</label>
+                                                    <select name="penulis[{{ $i }}][prodi_id]"
+                                                        class="form-control">
+                                                        <option value="">-- Pilih Prodi --</option>
+                                                        @foreach ($prodis as $prodi)
+                                                            <option value="{{ $prodi->id }}"
+                                                                {{ old("penulis.$i.prodi_id", $penulis->prodi_id ?? '') == $prodi->id ? 'selected' : '' }}>
+                                                                {{ $prodi->nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                             </div>
-                                        @enderror
+                                        @endfor
+                                    </div>
+                                    <button type="button" class="btn btn-secondary"
+                                        id="tampilkan-semua-penulis">Tampilkan
+                                        Semua Penulis</button>
+                                </div>
+
+                                {{-- tanggal --}}
+                                <div class="row inventor-row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label hidden class="font-weight-bold">Tanggal Pembuatan</label>
+                                            <input hidden type="date"
+                                                class="form-control @error('tanggal') is-invalid @enderror"
+                                                name="tanggal" rows="5"
+                                                value="{{ old('tanggal', $today ?? date('Y-m-d')) }}"
+                                                placeholder="Masukkan Alamat Pemegang Hak">
+                                            <!-- error message untuk tanggal -->
+                                            @error('tanggal')
+                                                <div class="alert alert-danger mt-2">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
+                            <!-- tanggal pembuaatan -->
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Tanggal Pembuatan</label>
+                                <input type="date" class="form-control @error('tanggal') is-invalid @enderror"
+                                    name="tanggal" rows="5" value="{{ old('tanggal', $today ?? date('Y-m-d')) }}"
+                                    placeholder="Masukkan Alamat Pemegang Hak">
+                                <!-- error message untuk tanggal -->
+                                @error('tanggal')
+                                    <div class="alert alert-danger mt-2">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                             </div>
 
                             <button type="submit" class="btn btn-md btn-primary me-3">SAVE</button>
                             <button type="reset" class="btn btn-md btn-warning">RESET</button>
-
                         </form>
                     </div>
                 </div>
@@ -247,28 +277,14 @@
     </div>
 
     <script>
-        let penulisIndex = {{ count($ketpub->penulis) }}; // Mulai dari jumlah penulis yang sudah ada
+        document.getElementById("tampilkan-semua-penulis").addEventListener("click", function() {
+            let penulisForms = document.querySelectorAll(".penulis-form.d-none");
 
-        document.getElementById('add-penulis-prodi-btn').addEventListener('click', function() {
-            // Membuat elemen div baru untuk baris penulis dan prodi
-            let newRow = document.createElement('div');
-            newRow.classList.add('row', 'penulis-prodi-row', 'mb-3');
+            penulisForms.forEach(function(el) {
+                el.classList.remove("d-none"); // Hapus kelas d-none agar elemen muncul
+            });
 
-            // Isi HTML untuk input nama penulis dan jurusan/prodi
-            newRow.innerHTML = `
-        <div class="col-md-6">
-            <label class="font-weight-bold">Nama Penulis</label>
-            <input type="text" class="form-control" name="penulis[${penulisIndex}][nama]" placeholder="Masukkan Nama Penulis">
-        </div>
-        <div class="col-md-6">
-            <label class="font-weight-bold">Jurusan/Prodi</label>
-            <input type="text" class="form-control" name="penulis[${penulisIndex}][prodi]" placeholder="Masukkan Jurusan/Prodi">
-        </div>
-    `;
-
-            // Menambahkan baris input baru ke container penulis
-            document.getElementById('penulis-fields').appendChild(newRow);
-            penulisIndex++;
+            this.style.display = "none"; // Sembunyikan tombol setelah diklik
         });
     </script>
 @endsection

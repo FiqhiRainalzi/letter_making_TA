@@ -1,20 +1,26 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\DosenController;
-use App\Http\Controllers\HkiController;
-use App\Http\Controllers\KeteranganPublikController;
-use App\Http\Controllers\PenelitianController;
-use App\Http\Controllers\PkmController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\SesiController;
-use App\Http\Controllers\TugasPublikasiController;
-use App\Http\Controllers\NotificationController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HkiController;
+use App\Http\Controllers\PkmController;
+use App\Http\Controllers\SesiController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DosenController;
+use App\Http\Controllers\KetuaController;
+use App\Http\Controllers\ProdiController;
 use App\Http\Controllers\GrafikController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RiwayatController;
+use App\Http\Controllers\KodeSuratController;
+use App\Http\Controllers\PenelitianController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\TugasPublikasiController;
+use App\Http\Controllers\KeteranganPublikController;
+use App\Models\Penelitian;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 //notif
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
@@ -40,8 +46,16 @@ Route::middleware(['auth'])->group(function () {
     Route::put('profil/{profil}', [DosenController::class, 'updatePassword'])->name('dosen.updatePassword');
 });
 
+
+Route::middleware(['auth', 'role:ketua'])->group(function () {
+    Route::get('ajuan', [KetuaController::class, 'ajuan'])->name('ketua.ajuan');
+    Route::get('ttd', [KetuaController::class, 'ttd'])->name('ketua.ttd');
+    Route::post('/ketua/upload-ttd', [KetuaController::class, 'uploadTtd'])->name('ketua.uploadTtd');
+    Route::post('/ketua/tandatangani/{jenis}/{id}', [KetuaController::class, 'tandatanganiSurat'])->name('ketua.tandatangani');
+});
+
 //middleware auth dossen
-Route::middleware(['auth', 'verified', 'role:dosen'])->group(function () {
+Route::middleware(['auth', 'role:dosen'])->group(function () {
 
     //dosen hki
     Route::get('hki', [HkiController::class, 'index'])->name('hki.index');
@@ -92,7 +106,7 @@ Route::middleware(['auth', 'verified', 'role:dosen'])->group(function () {
 
 
 //admin
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin'])->group(function () {
     //akun pengguna
     Route::get('akunPengguna', [AdminController::class, 'akunPenggunaView'])->name('admin.akunPengguna');
     Route::get('akunPengguna/create', [AdminController::class, 'akunPenggunaCreate'])->name('admin.akunPenggunaCreate');
@@ -101,38 +115,70 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::put('akunPengguna/{akunPengguna}', [AdminController::class, 'akunPenggunaUpdate'])->name('admin.akunPenggunaUpdate');
     Route::delete('akunPengguna/{akunPengguna}', [AdminController::class, 'akunPenggunaDestroy'])->name('admin.akunPenggunaDestroy');
     //hki
-    Route::get('hkiView', [AdminController::class, 'hkiView'])->name('admin.hkiView');
-    Route::get('hkiEdit/{hki}/edit', [AdminController::class, 'hkiEdit'])->name('admin.hkiEdit');
-    Route::put('hkiUpdate/{hki}', [AdminController::class, 'hkiUpdate'])->name('admin.hkiUpdate');
+    Route::get('hkiView', [HkiController::class, 'verifikaiHkiView'])->name('admin.hkiView');
+    Route::get('hkiEdit/{hki}/edit', [HkiController::class, 'verifikaiHkiEdit'])->name('admin.hkiEdit');
+    Route::put('hkiUpdate/{hki}', [HkiController::class, 'verifikaiHkiUpdate'])->name('admin.hkiUpdate');
     Route::get('hkiShow/{hkiShow}', [HkiController::class, 'show'])->name('admin.hkiShow');
     Route::get('hkiShow/{hkiShow}/download', [HkiController::class, 'downloadWord'])->name('admin.hkiDownload');
     //pkm
-    Route::get('pkmView', [AdminController::class, 'pkmView'])->name('admin.pkmView');
-    Route::get('pkmEdit/{pkm}/edit', [AdminController::class, 'pkmEdit'])->name('admin.pkmEdit');
-    Route::put('pkmUpdate/{pkm}', [AdminController::class, 'pkmUpdate'])->name('admin.pkmUpdate');
+    Route::get('pkmView', [PkmController::class, 'verifikasiPkmView'])->name('admin.pkmView');
+    Route::get('pkmEdit/{pkm}/edit', [PkmController::class, 'verifikasiPkmEdit'])->name('admin.pkmEdit');
+    Route::put('pkmUpdate/{pkm}', [PkmController::class, 'verifikasiPkmUpdate'])->name('admin.pkmUpdate');
     Route::get('pkmShow/{pkmShow}', [PkmController::class, 'show'])->name('admin.pkmShow');
     Route::get('pkmShow/{pkmShow}/download', [PkmController::class, 'downloadWord'])->name('admin.pkmDownload');
     //penelitian
-    Route::get('penelitianView', [AdminController::class, 'penelitianView'])->name('admin.penelitianView');
-    Route::get('penelitianEdit/{penelitian}/edit', [AdminController::class, 'penelitianEdit'])->name('admin.penelitianEdit');
-    Route::put('penelitianUpdate/{penelitian}', [AdminController::class, 'penelitianUpdate'])->name('admin.penelitianUpdate');
+    Route::get('penelitianView', [Penelitian::class, 'verifikasiPenelitianView'])->name('admin.penelitianView');
+    Route::get('penelitianEdit/{penelitian}/edit', [Penelitian::class, 'verifikasiPenelitianEdit'])->name('admin.penelitianEdit');
+    Route::put('penelitianUpdate/{penelitian}', [Penelitian::class, 'verifikasiPenelitianUpdate'])->name('admin.penelitianUpdate');
     Route::get('penelitianShow/{penelitianShow}', [PenelitianController::class, 'show'])->name('admin.penelitianShow');
     Route::get('penelitianShow/{penelitianShow}/download', [PenelitianController::class, 'downloadWord'])->name('admin.penelitianDownload');
     //ketpub
-    Route::get('ketpubView', [AdminController::class, 'ketpubView'])->name('admin.ketpubView');
-    Route::get('ketpubEdit/{ketpub}/edit', [AdminController::class, 'ketpubEdit'])->name('admin.ketpubEdit');
-    Route::put('ketpubUpdate/{ketpub}', [AdminController::class, 'ketpubUpdate'])->name('admin.ketpubUpdate');
+    Route::get('ketpubView', [KeteranganPublikController::class, 'verifikasiKetpubView'])->name('admin.ketpubView');
+    Route::get('ketpubEdit/{ketpub}/edit', [KeteranganPublikController::class, 'verifikasiKetpubEdit'])->name('admin.ketpubEdit');
+    Route::put('ketpubUpdate/{ketpub}', [KeteranganPublikController::class, 'verifikasiKetpubUpdate'])->name('admin.ketpubUpdate');
     Route::get('ketpubShow/{ketpubShow}', [KeteranganPublikController::class, 'show'])->name('admin.ketpubShow');
     Route::get('ketpubShow/{ketpubShow}/download', [KeteranganPublikController::class, 'downloadWord'])->name('admin.ketpubDownload');
     //tugaspub
-    Route::get('tugaspubView', [AdminController::class, 'tugaspubView'])->name('admin.tugaspubView');
-    Route::get('tugaspubEdit/{tugaspub}/edit', [AdminController::class, 'tugaspubEdit'])->name('admin.tugaspubEdit');
-    Route::put('tugaspubUpdate/{tugaspub}', [AdminController::class, 'tugaspubUpdate'])->name('admin.tugaspubUpdate');
+    Route::get('tugaspubView', [TugasPublikasiController::class, 'verifikasiTugaspubView'])->name('admin.tugaspubView');
+    Route::get('tugaspubEdit/{tugaspub}/edit', [TugasPublikasiController::class, 'verifikasiTugaspubEdit'])->name('admin.tugaspubEdit');
+    Route::put('tugaspubUpdate/{tugaspub}', [TugasPublikasiController::class, 'verifikasiTugaspubUpdate'])->name('admin.tugaspubUpdate');
     Route::get('tugaspubShow/{tugaspubShow}', [TugasPublikasiController::class, 'show'])->name('admin.tugaspubShow');
     Route::get('tugaspubShow/{tugaspubShow}/download', [TugasPublikasiController::class, 'downloadWord'])->name('admin.tugaspubDownload');
+    //Prodi
+    Route::get('prodi', [ProdiController::class, 'index'])->name('prodi.index');
+    Route::get('prodi/create', [ProdiController::class, 'create'])->name('prodi.create');
+    Route::post('prodi', [ProdiController::class, 'store'])->name('prodi.store');
+    Route::get('prodi/{prodi}/edit', [ProdiController::class, 'edit'])->name('prodi.edit');
+    Route::put('prodi/{prodi}', [ProdiController::class, 'update'])->name('prodi.update');
+    Route::delete('prodi/{prodi}', [ProdiController::class, 'destroy'])->name('prodi.destroy');
+    //laporan
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');
+    //kode surat
+    Route::resource('kode_surat', KodeSuratController::class);
+});
+
+// Riwayat Dosen
+Route::middleware(['auth', 'role:dosen'])->group(function () {
+    Route::get('/dosen/riwayat-surat', [RiwayatController::class, 'indexDosen'])->name('dosen.riwayat');
+});
+
+// Riwayat Admin
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/riwayat-surat', [RiwayatController::class, 'indexAdmin'])->name('admin.riwayat');
+});
+
+// Riwayat Ketua
+Route::middleware(['auth', 'role:ketua'])->group(function () {
+    Route::get('/ketua/riwayat-surat', [RiwayatController::class, 'indexKetua'])->name('ketua.riwayat');
 });
 
 
+Route::delete('/riwayat/{id}', [RiwayatController::class, 'destroy'])->name('riwayat.destroy');
+Route::delete('/riwayat', [RiwayatController::class, 'destroyAll'])->name('riwayat.destroyAll');
+
+
+// Verifikasi Email Registration
 Route::get('/email/verify', function () {
     return view('emails.verify-email'); // Ganti dengan tampilan yang Anda miliki
 })->middleware('auth')->name('verification.notice');

@@ -165,28 +165,41 @@
                                     </div>
                                 @enderror
                             </div>
-                            {{-- penulis --}}
-                            <div id="penulis-fields">
-                                <div class="row">
-                                    <div class="col md-6">
-                                        <div class="form-group mb-3">
-                                            <label>Nama Penulis</label>
-                                            <input type="text" name="penulis[0][nama]" class="form-control"
-                                                placeholder="Masukkan Nama Penulis">
-                                        </div>
+                            <!-- Penulis -->
+                            <div class="card mb-4">
+                                <div class="card-header">Penulis Penelitian (Maksimal 10)</div>
+                                <div class="card-body">
+                                    <div id="penulis-fields">
+                                        @for ($i = 0; $i < 10; $i++)
+                                            <div class="row mb-3 penulis-form mb-3 @if ($i >= 3) d-none @endif"
+                                                id="penulis-{{ $i }}">
+                                                <div class="col-md-6">
+                                                    <label for="penulis[{{ $i }}][nama]">Nama Penulis
+                                                        {{ $i + 1 }}</label>
+                                                    <input type="text" name="penulis[{{ $i }}][nama]"
+                                                        class="form-control" value="{{ old("penulis.$i.nama") }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="penulis[{{ $i }}][prodi_id]">Prodi</label>
+                                                    <select name="penulis[{{ $i }}][prodi_id]"
+                                                        class="form-control">
+                                                        <option value="">-- Pilih Prodi --</option>
+                                                        @foreach ($prodis as $prodi)
+                                                            <option value="{{ $prodi->id }}"
+                                                                {{ old("penulis.$i.prodi_id") == $prodi->id ? 'selected' : '' }}>
+                                                                {{ $prodi->nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        @endfor
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label>Program Studi</label>
-                                            <input type="text" name="penulis[0][prodi]" class="form-control"
-                                                placeholder="Masukkan Prodi">
-                                        </div>
-                                    </div>
+                                    <button type="button" class="btn btn-secondary"
+                                        id="tampilkan-semua-penulis">Tampilkan
+                                        Semua Penulis</button>
                                 </div>
                             </div>
-
-                            <button type="button" class="btn btn-success mb-3" id="add-penulis-btn">Tambah
-                                Penulis</button>
                             {{-- tanggal --}}
                             <div class="row inventor-row">
                                 <div class="col-md-6">
@@ -217,28 +230,12 @@
     </div>
 
     <script>
-        let penulisIndex = 1; // Index dimulai dari 0 untuk form create
-
-        document.getElementById('add-penulis-btn').addEventListener('click', function() {
-            // Membuat elemen div baru untuk baris penulis
-            let newRow = document.createElement('div');
-            newRow.classList.add('row', 'penulis-prodi-row', 'mb-3');
-
-            // Isi HTML untuk input nama penulis
-            newRow.innerHTML = `
-            <div class="col-md-6">
-                <label class="font-weight-bold">Nama Penulis ${penulisIndex + 1}</label>
-                <input type="text" class="form-control" name="penulis[${penulisIndex}][nama]" placeholder="Masukkan Nama Penulis">
-            </div>
-            <div class="col-md-6">
-                <label class="font-weight-bold">Jurusan/Prodi</label>
-                <input type="text" class="form-control" name="penulis[${penulisIndex}][prodi]" placeholder="Masukkan Jurusan/Prodi">
-            </div>
-            `;
-
-            // Menambahkan baris input baru ke container penulis
-            document.getElementById('penulis-fields').appendChild(newRow);
-            penulisIndex++;
+        // Script untuk menampilkan semua input penulis
+        document.getElementById('tampilkan-semua-penulis').addEventListener('click', function() {
+            for (let i = 3; i < 10; i++) {
+                document.getElementById(`penulis-${i}`).classList.remove('d-none');
+            }
+            this.style.display = 'none'; // Sembunyikan tombol setelah diklik
         });
     </script>
 @endsection

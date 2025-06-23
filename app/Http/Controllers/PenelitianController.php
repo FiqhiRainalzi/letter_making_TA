@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Anggota;
-use App\Models\Notification;
-use App\Models\Penelitian;
-use App\Models\TenagaPembantu;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Prodi;
+use GuzzleHttp\Client;
+use App\Models\Anggota;
+use App\Models\Riwayat;
+use App\Models\KodeSurat;
+use App\Models\AjuanSurat;
+use App\Models\Penelitian;
+use App\Models\Verifikasi;
+use App\Models\Notification;
 use Illuminate\Http\Request;
+use App\Models\TenagaPembantu;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
+use App\Helpers\ValidasiNomorSuratHelper;
 
 class PenelitianController extends BaseController
 {
@@ -19,9 +28,17 @@ class PenelitianController extends BaseController
     public function index()
     {
         $user = Auth::user();
-
         $penelitian = Penelitian::where('user_id', $user->id)->get();
         $title = 'Surat Penelitian';
+        //menghitung hari proses pengajuan
+        $penelitian->transform(function ($item) {
+            if (in_array($item->statusSurat, ['approved', 'ready_to_pickup', 'picked_up', 'rejected'])) {
+                $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::parse($item->updated_at));
+            } else {
+                $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::now());
+            }
+            return $item;
+        });
         return view('user.dosen.penelitian.index', compact('penelitian', 'title'));
     }
 
@@ -30,8 +47,9 @@ class PenelitianController extends BaseController
      */
     public function create()
     {
+        $prodis = Prodi::all();
         $title = 'Tambah Surat Penelitian';
-        return view('user.dosen.penelitian.create', compact('title'));
+        return view('user.dosen.penelitian.create', compact('title', 'prodis'));
     }
 
     /**
@@ -39,23 +57,27 @@ class PenelitianController extends BaseController
      */
     public function store(Request $request)
     {
+        // Validasi data utama
         $request->validate([
             'namaKetua' => 'required',
             'nipNidn' => 'required|min:5',
             'jabatanAkademik' => 'required|min:5',
-            'jurusanProdi' => 'required|min:5',
-            'anggota' => 'required|array',
+            'jurusanProdi' => 'required',
             'judul' => 'required|min:5',
             'skim' => 'required|min:5',
             'dasarPelaksanaan' => 'required|min:5',
             'lokasi' => 'required|min:5',
-            'bulanPelaksanaan' => 'required',
-            'bulanAkhirPelaksanaan' => 'required',
+            'bulanPelaksanaan' => 'required|date',
+            'bulanAkhirPelaksanaan' => 'required|date',
         ]);
 
-        $user = Auth::user();
+        $ajuan = AjuanSurat::create([
+            'user_id' => Auth::id(),
+            'jenis_surat' => 'penelitian',
+            'status' => 'diajukan',
+        ]);
 
-        // Membuat Penelitian
+        // Simpan data penelitian
         $penelitian = Penelitian::create([
             'namaKetua' => $request->namaKetua,
             'nipNidn' => $request->nipNidn,
@@ -68,45 +90,74 @@ class PenelitianController extends BaseController
             'bulanPelaksanaan' => $request->bulanPelaksanaan,
             'bulanAkhirPelaksanaan' => $request->bulanAkhirPelaksanaan,
             'tanggal' => $request->tanggal,
-            'statusSurat' => 'pending',
-            'user_id' => $user->id,
+            'statusSurat' => 'draf',
+            'ajuan_surat_id' => $ajuan->id,
+            'user_id' => Auth::id(),
         ]);
 
-        // Kirim notifikasi ke admin
-        $admins = User::where('role', 'admin')->get();
-        foreach ($admins as $admin) {
-            Notification::create([
-                'user_id' => $admin->id,
-                'title' => 'Pengajuan Baru',
-                'message' => 'Dosen telah membuat pengajuan surat Penelitian.',
-                'status' => 'unread',
-            ]);
-        }
-
-        // Menambahkan Anggota (Validasi untuk mengabaikan input kosong)
+        // Simpan anggota penelitian
         foreach ($request->anggota as $anggota) {
-            if (!empty($anggota['nama']) && !empty($anggota['prodi'])) { // Hanya proses jika nama dan prodi tidak kosong
-                Anggota::create([
-                    'penelitian_id' => $penelitian->id,
+            if (!empty($anggota['nama'])) {
+                $penelitian->anggota()->create([
                     'nama' => $anggota['nama'],
-                    'prodi' => $anggota['prodi'],
+                    'prodi_id' => $anggota['prodi_id'],
                 ]);
             }
         }
 
-        // Menambahkan Tenaga Pembantu (Validasi untuk mengabaikan input kosong)
-        foreach ($request->tenaga as $tenaga) {
-            if (!empty($tenaga['nama']) && !empty($tenaga['status'])) { // Hanya proses jika nama dan status tidak kosong
-                TenagaPembantu::create([
-                    'penelitian_id' => $penelitian->id,
+        // Simpan tenaga pembantu penelitian
+        foreach ($request->tenaga_pembantu as $tenaga) {
+            if (!empty($tenaga['nama'])) {
+                $penelitian->tenagaPembantu()->create([
                     'nama' => $tenaga['nama'],
-                    'status' => $tenaga['status'],
+                    'prodi_id' => $tenaga['prodi_id'],
                 ]);
             }
+        }
+
+        $user = Auth::user();
+        // Tambahkan ke tabel riwayat surat
+        Riwayat::create([
+            'user_id' => Auth::id(), // <- WAJIB agar masuk ke index dosen
+            'ajuan_surat_id' => $ajuan->id,
+            'aksi' => 'Mengajukan Surat Tugas Pengabdian',
+            'diubah_oleh' => $user->name,
+            'catatan' => 'Surat "' . $request->judul . '" diajukan oleh ' . $user->name,
+            'waktu_perubahan' => now(),
+        ]);
+
+        // Notifikasi
+        $penelitian = Penelitian::latest()->first();
+        $admins = User::where('role', 'admin')->get();
+        $client = new Client();
+        // Siapkan datanya untuk message
+        $message = View::make('user.notif.whatsapp', [
+            'judul_notifikasi' => 'Surat Tugas Penelitian Baru Saja Dibuat',
+            'data' => [
+                'Judul'   => $penelitian->judul,
+                'Pemohon' => $penelitian->user->name ?? 'N/A',
+                'Tanggal' => now()->format('d M Y'),
+                'Status'  => ucfirst($request->status ?? 'Belum Ditentukan'),
+            ],
+            'footer' => 'Silakan cek sistem untuk melakukan tanda tangan.',
+        ])->render();
+
+        foreach ($admins as $admin) {
+            $response = $client->post('https://api.fonnte.com/send', [
+                'headers' => [
+                    'Authorization' => env('FONNTE_API_KEY'),
+                    'Accept' => 'application/json',
+                ],
+                'form_params' => [
+                    'target' => $admin->nomor_telepon,
+                    'message' => $message,
+                ],
+            ]);
         }
 
         return redirect()->route('penelitian.index')->with('success', 'Surat Tugas Penelitian berhasil dibuat');
     }
+
     /**
      * Display the specified resource.
      */
@@ -114,10 +165,6 @@ class PenelitianController extends BaseController
     {
         $user = Auth::user();
         $penelitian = Penelitian::findOrFail($id);
-
-        // Memuat relasi anggota dan tenagaPembantu
-        $penelitian->load('anggota', 'tenagaPembantu');
-
         $title = 'Tampilan Surat Penelitian';
 
         if ($user->role === 'admin') {
@@ -135,10 +182,10 @@ class PenelitianController extends BaseController
      */
     public function edit(string $id)
     {
-        $penelitian = Penelitian::findOrFail($id);
-        $penelitian->load('anggota', 'tenagaPembantu');
+        $penelitian = Penelitian::findOrFail($id); // Ambil data penelitian
+        $prodis = Prodi::all(); // Ambil semua data prodi
         $title = 'Edit Surat Penelitian';
-        return view('user.dosen.penelitian.edit', compact('penelitian', 'title'));
+        return view('user.dosen.penelitian.edit', compact('penelitian', 'prodis', 'title'));
     }
 
     /**
@@ -146,89 +193,77 @@ class PenelitianController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        // Mencari data penelitian berdasarkan ID
+        // Validasi data utama
+        $request->validate([
+            'namaKetua' => 'required',
+            'nipNidn' => 'required|min:5',
+            'jabatanAkademik' => 'required|min:5',
+            'jurusanProdi' => 'required',
+            'judul' => 'required|min:5',
+            'skim' => 'required|min:5',
+            'dasarPelaksanaan' => 'required|min:5',
+            'lokasi' => 'required|min:5',
+            'bulanPelaksanaan' => 'required',
+            'bulanAkhirPelaksanaan' => 'required',
+        ]);
+
+        // Ambil data penelitian yang akan diupdate
         $penelitian = Penelitian::findOrFail($id);
 
-        // Mengupdate anggota
-        if ($request->has('anggota')) {
-            $existingAnggotaIds = [];
-
-            // Perbarui atau tambahkan anggota baru
-            foreach ($request->anggota as $anggota) {
-                if (!empty($anggota['nama'])) {
-                    if (isset($anggota['id']) && $anggota['id']) {
-                        // Jika anggota memiliki ID, update data yang sudah ada
-                        $existingAnggota = $penelitian->anggota()->find($anggota['id']);
-                        if ($existingAnggota) {
-                            $existingAnggota->update([
-                                'nama' => $anggota['nama'],
-                                'prodi' => $anggota['prodi'] ?? null,
-                            ]);
-                            $existingAnggotaIds[] = $anggota['id']; // Menyimpan ID yang sudah diperbarui
-                        }
-                    } else {
-                        // Jika anggota tidak memiliki ID, tambahkan anggota baru
-                        $newAnggota = $penelitian->anggota()->create([
-                            'nama' => $anggota['nama'],
-                            'prodi' => $anggota['prodi'] ?? null,
-                        ]);
-                        $existingAnggotaIds[] = $newAnggota->id; // Menyimpan ID anggota yang baru
-                    }
-                }
-            }
-
-            // Menghapus anggota yang tidak ada di input
-            $penelitian->anggota()->whereNotIn('id', $existingAnggotaIds)->delete();
-        }
-
-        // Mengupdate tenaga pembantu
-        if ($request->has('tenagaPembantu')) {
-            $existingTenagaIds = [];
-
-            // Perbarui atau tambahkan tenaga pembantu baru
-            foreach ($request->tenagaPembantu as $tenaga) {
-                if (!empty($tenaga['nama'])) {
-                    if (isset($tenaga['id']) && $tenaga['id']) {
-                        // Jika tenaga pembantu memiliki ID, update data yang sudah ada
-                        $existingTenaga = $penelitian->tenagaPembantu()->find($tenaga['id']);
-                        if ($existingTenaga) {
-                            $existingTenaga->update([
-                                'nama' => $tenaga['nama'],
-                                'status' => $tenaga['status'] ?? null,
-                            ]);
-                            $existingTenagaIds[] = $tenaga['id']; // Menyimpan ID yang sudah diperbarui
-                        }
-                    } else {
-                        // Jika tenaga pembantu tidak memiliki ID, tambahkan tenaga pembantu baru
-                        $newTenaga = $penelitian->tenagaPembantu()->create([
-                            'nama' => $tenaga['nama'],
-                            'status' => $tenaga['status'] ?? null,
-                        ]);
-                        $existingTenagaIds[] = $newTenaga->id; // Menyimpan ID tenaga pembantu yang baru
-                    }
-                }
-            }
-
-            // Menghapus tenaga pembantu yang tidak ada di input
-            $penelitian->tenagaPembantu()->whereNotIn('id', $existingTenagaIds)->delete();
-        }
-
-        // Menyimpan perubahan lainnya yang tidak melibatkan anggota dan tenaga pembantu
+        // Update data utama
         $penelitian->update([
             'namaKetua' => $request->namaKetua,
             'nipNidn' => $request->nipNidn,
             'jabatanAkademik' => $request->jabatanAkademik,
-            'jurusanProdi'  => $request->jurusanProdi,
-            'skim'  => $request->skim,
-            'dasarPelaksanaan'  => $request->dasarPelaksanaan,
-            'lokasi'  => $request->lokasi,
-            'bulanPelaksanaan'  => $request->bulanPelaksanaan,
-            'bulanAkhirPelaksanaan'  => $request->bulanAkhirPelaksanaan,
-            'tanggal' => $request->tanggal,
-            'judul' => $request->judul,  // Contoh field lain untuk update
+            'jurusanProdi' => $request->jurusanProdi,
+            'judul' => $request->judul,
+            'skim' => $request->skim,
+            'dasarPelaksanaan' => $request->dasarPelaksanaan,
+            'lokasi' => $request->lokasi,
+            'bulanPelaksanaan' => $request->bulanPelaksanaan,
+            'bulanAkhirPelaksanaan' => $request->bulanAkhirPelaksanaan,
         ]);
 
-        return redirect()->route('penelitian.index')->with('success', 'Data Penelitian berhasil diperbarui');
+        // Hapus semua anggota dan tenaga pembantu yang terkait
+        $penelitian->anggota()->delete();
+        $penelitian->tenagaPembantu()->delete();
+
+        // Simpan anggota penelitian yang baru
+        foreach ($request->anggota as $anggota) {
+            if (!empty($anggota['nama'])) {
+                $penelitian->anggota()->create([
+                    'nama' => $anggota['nama'],
+                    'prodi_id' => $anggota['prodi_id'],
+                ]);
+            }
+        }
+
+        // Simpan tenaga pembantu penelitian yang baru
+        foreach ($request->tenaga_pembantu as $tenaga) {
+            if (!empty($tenaga['nama'])) {
+                $penelitian->tenagaPembantu()->create([
+                    'nama' => $tenaga['nama'],
+                    'prodi_id' => $tenaga['prodi_id'],
+                ]);
+            }
+        }
+        // Tambahkan Riwayat
+        $user = Auth::user();
+        $ajuan = $penelitian->ajuanSurat;
+        if ($ajuan) {
+            Riwayat::create([
+                'user_id' => Auth::id(), // <- WAJIB agar masuk ke index dosen
+                'ajuan_surat_id' => $ajuan->id,
+                'aksi' => 'Mengedit Surat Tugas Pengabdian',
+                'diubah_oleh' => $user->name,
+                'catatan' => 'Surat diperbarui oleh ' . $user->name,
+                'waktu_perubahan' => now(),
+            ]);
+        } else {
+            Log::warning("AjuanSurat dengan ID $id tidak ditemukan saat ingin membuat riwayat.");
+        }
+
+        return redirect()->route('penelitian.index')->with('success', 'Surat Tugas Penelitian berhasil diupdate');
     }
 
     /**
@@ -237,52 +272,202 @@ class PenelitianController extends BaseController
     public function destroy(string $id)
     {
         $penelitian = Penelitian::findOrFail($id);
+        // Simpan referensi sebelum dihapus
+        $ajuan = $penelitian->ajuanSurat;
+        // Catat ke riwayat
+        Riwayat::create([
+            'user_id' => Auth::id(), // siapa yang menghapus
+            'ajuan_surat_id' => $ajuan->id,
+            'aksi' => 'Menghapus Surat Penelitian',
+            'catatan' => 'Data Penelitian dengan judul "' . $penelitian->judul . '" telah dihapus.',
+            'waktu_perubahan' => now(),
+        ]);
         $penelitian->delete();
-
         return redirect()->route('penelitian.index')->with('success', 'Data Berhasil di Hapus');
     }
+    //penelitian controller
+    public function verifikasiPenelitianView()
+    {
+        $penelitian = Penelitian::get();
+        $today = date('Y-m-d');
+        $title = 'Surat Penelitian';
+        return view('user.admin.penelitian.index', compact('penelitian', 'today', 'title'));
+    }
 
+    public function verifikasiPenelitianEdit($id)
+    {
+        $penelitian = Penelitian::findOrFail($id);
+        $kodeSurats = KodeSurat::all();
+        $title = 'Edit Surat Penelitian';
+        return view('user.admin.penelitian.edit', compact('penelitian', 'title', 'kodeSurats'));
+    }
+
+    public function verifikasiPenelitianUpdate(Request $request, string $id)
+    {
+        $penelitian = Penelitian::findOrFail($id);
+        //buat notif
+        $ketua = User::where('role', 'ketua')->first();
+        $status = strtolower($request->status);
+        // VALIDASI
+        $request->validate(
+            [
+                'kode_surat_id' => 'required|exists:kode_surat,id',
+                'status' => 'required',
+                'nomorSurat' => [
+                    'required',
+                    'numeric',
+                    function ($attribute, $value, $fail) use ($request, $id) {
+                        if (ValidasiNomorSuratHelper::isDipakai($request->kode_surat_id, $value, $id)) {
+                            $fail("Nomor $value sudah dipakai untuk kode surat ini di surat lain.");
+                        }
+
+                        $max = ValidasiNomorSuratHelper::maxNomorTerakhir($request->kode_surat_id, $id, 'penelitian') ?? 0;
+
+                        if ($value > $max + 1) {
+                            $fail("Nomor tidak boleh lompat. Nomor terakhir: $max. Anda hanya boleh mengisi " . ($max + 1));
+                        }
+                    },
+                ],
+            ],
+            [
+                'nomorSurat.required' => 'Nomor surat wajib diisi.',
+                'nomorSurat.numeric' => 'Nomor surat harus berupa angka.',
+            ]
+        );
+
+        // Simpan ke penelitian
+        $penelitian->update([
+            'kode_surat_id' => $request->kode_surat_id,
+            'nomorSurat' => $request->nomorSurat,
+        ]);
+
+        // Simpan data ke tabel verifikasi
+        Verifikasi::create([
+            'ajuan_surat_id' => $penelitian->ajuan_surat_id,
+            'petugas_id' => Auth::id(), // user yang sedang login (harus petugas)
+            'verified_at' => now(),
+        ]);
+
+        // Update status hanya di tabel ajuan_surats
+        $ajuan = $penelitian->ajuanSurat;
+        $ajuan->update([
+            'status' => $request->status,
+        ]);
+        Riwayat::create([
+            'user_id' => Auth::id(),
+            'ajuan_surat_id' => $penelitian->ajuan_surat_id,
+            'aksi' => 'Verifikasi Surat HKI',
+            'waktu_perubahan' => now(),
+            'catatan' => 'Status diubah menjadi: ' . ucfirst($status),
+        ]);
+
+        // Cek jika status "disetujui" dan kirim WA ke ketua
+        if ($status === 'disetujui') {
+            if ($ketua && $ketua->nomor_telepon) {
+                $message = View::make('user.notif.whatsapp', [
+                    'judul_notifikasi' => 'Surat Tugas Penelitian Telah Disetujui',
+                    'data' => [
+                        'Judul'   => $penelitian->judul,
+                        'Pemohon' => $penelitian->user->name ?? 'N/A',
+                        'Tanggal' => now()->format('d M Y'),
+                        'Status'  => ucfirst($status),
+                    ],
+                    'footer' => 'Silakan cek sistem untuk melakukan tanda tangan.',
+                ])->render();
+
+                $client = new Client();
+                $client->post('https://api.fonnte.com/send', [
+                    'headers' => [
+                        'Authorization' => env('FONNTE_API_KEY'),
+                        'Accept' => 'application/json',
+                    ],
+                    'form_params' => [
+                        'target' => $ketua->nomor_telepon,
+                        'message' => $message,
+                    ],
+                ]);
+            }
+        }
+
+        if ($status === 'siap diambil') {
+            $dosen = $ajuan->user;
+            if ($dosen && $dosen->nomor_telepon) {
+                $message = View::make('user.notif.whatsapp', [
+                    'judul_notifikasi' => 'Surat Tugas Penelitian Dapat Diambil',
+                    'data' => [
+                        'Judul'   => $penelitian->judul,
+                        'Pemohon' => $penelitian->user->name ?? 'N/A',
+                        'Tanggal' => now()->format('d M Y'),
+                        'Status'  => ucfirst($status),
+                    ],
+                    'footer' => 'Silakan mendatangi kantor unit P3M untuk mengambil surat tugas.',
+                ])->render();
+
+                $client = new Client();
+                $client->post('https://api.fonnte.com/send', [
+                    'headers' => [
+                        'Authorization' => env('FONNTE_API_KEY'),
+                        'Accept' => 'application/json',
+                    ],
+                    'form_params' => [
+                        'target' => $dosen->nomor_telepon,
+                        'message' => $message,
+                    ],
+                ]);
+            }
+        }
+        return redirect()->route('admin.penelitianView')->with('success', 'Data berhasil diupdate');
+    }
+    //end penelitian controller
     public function downloadWord(string $id)
     {
         $phpWord = new \PhpOffice\PhpWord\TemplateProcessor('suratPenelitian.docx');
 
-        $penelitian = Penelitian::with(['anggota', 'tenagaPembantu'])->findOrFail($id);
+        $penelitian = Penelitian::findOrFail($id);
 
         $bulan = Carbon::parse($penelitian->bulanPelaksanaan)->translatedFormat('F Y');
         $akhirBulan = Carbon::parse($penelitian->bulanAkhirPelaksanaan)->translatedFormat('F Y');
         $year = Carbon::parse($penelitian->tanggal)->translatedFormat('Y');
         $formattedDate = Carbon::parse($penelitian->tanggal)->translatedFormat('j F Y');
 
-        // Hitung jumlah anggota
-        $anggotas = $penelitian->anggota;
-
-        // Clone row untuk data anggota
-        $phpWord->cloneRow('noA', $anggotas->count());
-
-        foreach ($anggotas as $index => $anggota) {
-            $row = $index + 1;
-
-            $phpWord->setValue("noA#{$row}", $row);
-            $phpWord->setValue("namaAnggota#{$row}", $anggota->nama ?: '-');
-            $phpWord->setValue("prodiAnggota#{$row}", $anggota->prodi ?: '-');
+        // Data Anggota dalam Bentuk Array
+        $anggotaData = [];
+        foreach ($penelitian->anggota as $index => $anggota) {
+            $anggotaData[] = [
+                'no_anggota' => $index + 1,
+                'nama_anggota' => $anggota->nama,
+                'bidang_studi' => $anggota->prodi->nama ?? '-',
+            ];
         }
 
-        // Hitung jumlah tenaga pembantu
-        $tenagaPenelitiPembantu = $penelitian->tenagaPembantu;
-
-        // Clone row untuk data tenaga pembantu
-        $phpWord->cloneRow('noB', $tenagaPenelitiPembantu->count());
-
-        foreach ($tenagaPenelitiPembantu as $index => $tenaga) {
-            $row = $index + 1;
-
-            $phpWord->setValue("noB#{$row}", $row);
-            $phpWord->setValue("tenagaPembantu#{$row}", $tenaga->nama ?: '-');
-            $phpWord->setValue("status#{$row}", $tenaga->status ?: '-');
+        // Data Tenaga Pembantu dalam Bentuk Array
+        $tenagaData = [];
+        foreach ($penelitian->tenagaPembantu as $index => $tenaga) {
+            $tenagaData[] = [
+                'no_pembantu' => $index + 1,
+                'nama_pembantu' => $tenaga->nama,
+                'prodi_pembantu' => $tenaga->prodi->nama ?? '-',
+            ];
         }
 
+        // Clone Row untuk Anggota
+        if (!empty($anggotaData)) {
+            $phpWord->cloneRowAndSetValues('no_anggota', $anggotaData);
+        } else {
+            $phpWord->setValue('no_anggota', '');
+            $phpWord->setValue('nama_anggota', '');
+            $phpWord->setValue('bidang_studi', '');
+        }
 
-        // Isi placeholder statis lainnya
+        // Clone Row untuk Tenaga Pembantu
+        if (!empty($tenagaData)) {
+            $phpWord->cloneRowAndSetValues('no_pembantu', $tenagaData);
+        } else {
+            $phpWord->setValue('no_pembantu', '');
+            $phpWord->setValue('nama_pembantu', '');
+            $phpWord->setValue('prodi_pembantu', '');
+        }
+        //  **Isi Placeholder Statis**
         $phpWord->setValues([
             'nomorSurat' => $penelitian->nomorSurat,
             'namaKetua' => $penelitian->namaKetua,
@@ -298,6 +483,17 @@ class PenelitianController extends BaseController
             'tanggal' => $formattedDate,
             'tahun' => $year,
         ]);
+
+        $tandaTanganPath = public_path('storage/' . $penelitian->tanda_tangan);
+
+        if (file_exists($tandaTanganPath)) {
+            $phpWord->setImageValue('tanda_tangan_ketua', [
+                'path' => $tandaTanganPath,
+                'width' => 150,
+                'height' => 80,
+                'ratio' => true,
+            ]);
+        }
 
         $fileName = 'Surat_Penelitian_' . str_replace(' ', '_', $penelitian->namaKetua) . '.docx';
         $phpWord->saveAs($fileName);

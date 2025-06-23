@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('ketpub', function (Blueprint $table) {
             $table->id('id');
-            $table->unsignedBigInteger('user_id'); // Menambahkan kolom user_id
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('ajuan_surat_id')->constrained('ajuan_surat')->onDelete('cascade');
             $table->string('nomorSurat')->nullable();
             $table->string('kategori_publikasi')->nullable();
-            $table->string('statusSurat')->nullable();        
             $table->string('judul');
             $table->string('namaPenerbit');
             $table->string('penerbit');
-            $table->bigInteger('Jilid');
-            $table->string('Edisi');
+            $table->bigInteger('jilid');
+            $table->string('edisi');
             $table->string('bulan');
             $table->string('akreditas');
             $table->string('issn');
@@ -29,8 +29,6 @@ return new class extends Migration
             $table->date('tanggal');
 
             $table->timestamps();
-             // Menambahkan foreign key constraint
-             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -39,8 +37,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('ketpub', function (Blueprint $table) {
-            // Menghapus foreign key sebelum menghapus tabel
+        Schema::table('hki', function (Blueprint $table) {
+            $table->dropForeign(['ajuan_surat_id']);
             $table->dropForeign(['user_id']);
         });
         Schema::dropIfExists('ketpub');

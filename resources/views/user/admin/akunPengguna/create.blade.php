@@ -41,6 +41,18 @@
                                     </div>
                                 @enderror
                             </div>
+                             <div class="form-group mb-3">
+                                <label class="font-weight-bold">Nomor Telepon</label>
+                                <input type="text" class="form-control @error('nomor_telepon') is-invalid @enderror"
+                                    name="nomor_telepon" value="{{ old('nomor_telepon') }}" placeholder="Masukkan Nomor Telepon">
+
+                                <!-- error message untuk title -->
+                                @error('nomor_telepon')
+                                    <div class="alert alert-danger mt-2">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Password</label>
                                 <input type="text" class="form-control @error('password') is-invalid @enderror"
@@ -55,12 +67,14 @@
                             </div>
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Role</label>
-                                <select class="form-control @error('role') is-invalid @enderror" name="role" id="role">
+                                <select class="form-control @error('role') is-invalid @enderror" name="role"
+                                    id="role">
                                     <option value="">Pilih Role</option>
                                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                                     <option value="dosen" {{ old('role') == 'dosen' ? 'selected' : '' }}>Dosen</option>
+                                    <option value="ketua" {{ old('role') == 'ketua' ? 'selected' : '' }}>Ketua</option>
                                 </select>
-                            
+
                                 <!-- error message untuk role -->
                                 @error('role')
                                     <div class="alert alert-danger mt-2">
@@ -69,7 +83,7 @@
                                 @enderror
                             </div>
 
-                            <button type="submit" class="btn btn-md btn-primary me-3">SAVE</button>
+                            <button type="submit" class="btn btn-md btn-primary me-3">SIMPAN</button>
                             <button type="reset" class="btn btn-md btn-warning">RESET</button>
 
                         </form>

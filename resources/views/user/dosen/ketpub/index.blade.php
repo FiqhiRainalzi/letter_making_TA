@@ -24,9 +24,11 @@
                             <thead>
                                 <tr>
                                     <th scope="col">No</th>
+                                    <th scope="col">Tanggal Pembuatan</th>
                                     <th scope="col">Penulis</th>
                                     <th scope="col">Judul</th>
                                     <th scope="col">Status</th>
+                                    <th scope="col">Lama Proses (hari)</th>
                                     <th scope="col" style="width: 20%">Aksi</th>
                                 </tr>
                             </thead>
@@ -34,16 +36,24 @@
                                 @forelse ($ketpub as $h)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $h->created_at->translatedFormat('d F Y') }}</td>
                                         <td>{{ $h->penulis->first()->nama }}</td>
                                         <td>{{ $h->judul }}</td>
-                                        <td>
-                                            @if ($h->statusSurat == 'approved')
-                                                <span class="badge bg-success">Approved</span>
-                                            @elseif($h->statusSurat == 'pending')
-                                                <span class="badge bg-warning">Pending</span>
-                                            @elseif($h->statusSurat == 'rejected')
-                                                <span class="badge bg-danger">Rejected</span>
+                                        <td class="text-center">
+                                            @if ($h->statusSurat == 'draft')
+                                                <span class="badge bg-secondary">Draf</span>
+                                            @elseif ($h->statusSurat == 'approved')
+                                                <span class="badge bg-success">Diterima</span>
+                                            @elseif ($h->statusSurat == 'ready_for_pickup')
+                                                <span class="badge bg-warning">Siap Diambil</span>
+                                            @elseif ($h->statusSurat == 'picked_up')
+                                                <span class="badge bg-success">Sudah Diambil</span>
+                                            @elseif ($h->statusSurat == 'rejected')
+                                                <span class="badge bg-danger">Ditolak</span>
                                             @endif
+                                        </td>
+                                        <td class="text-center">
+                                            {{ floor($h->lama_proses) }} hari
                                         </td>
                                         <td class="text-center">
                                             <form id="deleteForm-{{ $h->id }}"

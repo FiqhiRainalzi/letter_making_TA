@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pkm', function (Blueprint $table) {
-            $table->id('id');
-            $table->unsignedBigInteger('user_id'); // Menambahkan kolom user_id
+        Schema::create('penelitian', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('ajuan_surat_id')->constrained('ajuan_surat')->onDelete('cascade');
             $table->string('nomorSurat')->nullable();
-            $table->string('statusSurat')->nullable();
             $table->string('namaKetua');
             $table->string('nipNidn');
             $table->string('jabatanAkademik');
@@ -28,8 +28,6 @@ return new class extends Migration
             $table->date('bulanAkhirPelaksanaan');
             $table->date('tanggal');
             $table->timestamps();
-            // Menambahkan foreign key constraint
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -38,10 +36,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('pkm', function (Blueprint $table) {
-            // Menghapus foreign key sebelum menghapus tabel
+        Schema::table('hki', function (Blueprint $table) {
+            $table->dropForeign(['ajuan_surat_id']);
             $table->dropForeign(['user_id']);
         });
-        Schema::dropIfExists('pkm');
+        Schema::dropIfExists('penelitian');
     }
 };

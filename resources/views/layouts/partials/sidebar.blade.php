@@ -8,10 +8,9 @@
                 </a>
             </li>
 
-
+            <!-- Admin Nav -->
             @if (Auth::user()->role == 'admin')
-                <!-- Admin Nav -->
-                <li class="nav-heading">Surat</li>
+                <li class="nav-heading">Surat Tugas</li>
                 {{-- Dropdown for Surat Tugas HKI --}}
                 <li class="nav-item">
                     <a class="nav-link {{ Request::routeIs('admin.hkiView') ? '' : 'collapsed' }}"
@@ -28,11 +27,11 @@
                     </ul>
                 </li>
 
-                {{-- Dropdown for Surat Tugas Pengabdian Kepada Masyarakat --}}
+                {{-- Dropdown for Surat Tugas Penelitian dan Pengabdian Kepada Masyarakat --}}
                 <li class="nav-item">
                     <a class="nav-link {{ Request::routeIs('admin.penelitianView', 'admin.pkmView') ? '' : 'collapsed' }}"
                         data-bs-target="#aPKM-nav" data-bs-toggle="collapse" href="#">
-                        <i class="bi bi-journal-text"></i><span>Surat Tugas Pengabdian Kepada Masyarakat</span><i
+                        <i class="bi bi-journal-text"></i><span>Surat Tugas Penelitian dan Pengabdian</span><i
                             class="bi bi-chevron-down ms-auto"></i>
                     </a>
                     <ul id="aPKM-nav"
@@ -73,21 +72,48 @@
                         </li>
                     </ul>
                 </li>
-
+                {{-- Halaman --}}
                 <li class="nav-heading">Halaman</li>
-                {{-- Akun Pengguna --}}
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('prodi.index') ? '' : 'collapsed' }} "
+                        href="{{ route('prodi.index') }}">
+                        <i class="bi bi-mortarboard"></i>
+                        <span>Daftar Program Studi</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('kode_surat.*') ? '' : 'collapsed' }}"
+                        href="{{ route('kode_surat.index') }}">
+                        <i class="bi bi-code-square"></i>
+                        <span>Daftar Kode Surat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('admin.riwayat') ? '' : 'collapsed' }}"
+                        href="{{ route('admin.riwayat') }}">
+                        <i class="bi bi-grid"></i>
+                        <span>Riwayat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('laporan.index') ? '' : 'collapsed' }}"
+                        href="{{ route('laporan.index') }}">
+                        <i class="bi bi-grid"></i>
+                        <span>Laporan</span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {{ Request::routeIs('admin.akunPengguna') ? '' : 'collapsed' }}"
                         href="{{ route('admin.akunPengguna') }}">
                         <i class="bi bi-person-fill"></i>
-                        <span>Akun Pengguna</span>
+                        <span>Daftar Akun Pengguna</span>
                     </a>
                 </li>
 
                 <!-- End Admin Nav -->
             @elseif (Auth::user()->role == 'dosen')
                 <!-- Dosen Nav -->
-                <li class="nav-heading">Surat Tugas P3M</li>
+                <li class="nav-heading">Surat Tugas</li>
                 {{-- Dropdown for Surat Tugas HKI --}}
                 <li class="nav-item">
                     <a class="nav-link {{ Request::routeIs('hki.index') ? '' : 'collapsed' }}" data-bs-target="#hkidos-nav"
@@ -108,7 +134,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Request::routeIs('penelitian.index', 'pkm.index') ? '' : 'collapsed' }}"
                         data-bs-target="#pkm-nav" data-bs-toggle="collapse" href="#">
-                        <i class="bi bi-journal-text"></i><span>Surat Tugas Pengabdian Kepada Masyarakat</span><i
+                        <i class="bi bi-journal-text"></i><span>Surat Tugas Penelitian dan Pengabdian</span><i
                             class="bi bi-chevron-down ms-auto"></i>
                     </a>
                     <ul id="pkm-nav"
@@ -139,6 +165,38 @@
                                 class="{{ Request::routeIs('tugaspub.index') ? 'active' : '' }}">Surat Tugas Publikasi</a>
                         </li>
                     </ul>
+                </li>
+                <li class="nav-heading">Halaman</li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('dosen.riwayat') ? '' : 'collapsed' }}"
+                        href="{{ route('dosen.riwayat') }}">
+                        <i class="bi bi-grid"></i>
+                        <span>Riwayat</span>
+                    </a>
+                </li>
+                {{-- Ketua --}}
+            @elseif (Auth::user()->role == 'ketua')
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('ketua.ajuan') ? '' : 'collapsed' }}"
+                        href="{{ route('ketua.ajuan') }}">
+                        <i class="bi bi-grid"></i>
+                        <span>Ajuan Surat</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('ketua.ttd') ? '' : 'collapsed' }}"
+                        href="{{ route('ketua.ttd') }}">
+                        <i class="bi bi-grid"></i>
+                        <span>Tanda Tangan</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('ketua.riwayat') ? '' : 'collapsed' }}"
+                        href="{{ route('ketua.riwayat') }}">
+                        <i class="bi bi-grid"></i>
+                        <span>Riwayat</span>
+                    </a>
                 </li>
             @endif
         </ul>

@@ -15,7 +15,8 @@
             <div class="col-md-12">
                 <div class="card border-0 shadow-sm rounded">
                     <div class="card-body">
-                        <form action="{{ route('admin.akunPenggunaUpdate', $user->id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.akunPenggunaUpdate', $user->id) }}" method="POST"
+                            enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="form-group mb-3">
@@ -43,9 +44,23 @@
                                 @enderror
                             </div>
                             <div class="form-group mb-3">
+                                <label class="font-weight-bold">Nomor Telepon</label>
+                                <input type="text" class="form-control @error('nomor_telepon') is-invalid @enderror"
+                                    name="nomor_telepon" value="{{ old('nomor_telepon', $user->nomor_telepon) }}"
+                                    placeholder="Masukkan Nomor Telepon">
+
+                                <!-- error message untuk nomor_telepon -->
+                                @error('nomor_telepon')
+                                    <div class="alert alert-danger mt-2">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                            <div class="form-group mb-3">
                                 <label class="font-weight-bold">Password</label>
                                 <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                    name="password" value="{{ old('password') }}" placeholder="Masukkan Password Baru (Kosongkan jika tidak diubah)">
+                                    name="password" value="{{ old('password') }}"
+                                    placeholder="Masukkan Password Baru (Kosongkan jika tidak diubah)">
 
                                 <!-- error message untuk password -->
                                 @error('password')
@@ -56,12 +71,15 @@
                             </div>
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Role</label>
-                                <select class="form-control @error('role') is-invalid @enderror" name="role" id="role">
+                                <select class="form-control @error('role') is-invalid @enderror" name="role"
+                                    id="role">
                                     <option value="">Pilih Role</option>
-                                    <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="dosen" {{ old('role', $user->role) == 'dosen' ? 'selected' : '' }}>Dosen</option>
+                                    <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>
+                                        Admin</option>
+                                    <option value="dosen" {{ old('role', $user->role) == 'dosen' ? 'selected' : '' }}>
+                                        Dosen</option>
                                 </select>
-                            
+
                                 <!-- error message untuk role -->
                                 @error('role')
                                     <div class="alert alert-danger mt-2">
@@ -70,7 +88,7 @@
                                 @enderror
                             </div>
 
-                            <button type="submit" class="btn btn-md btn-primary me-3">UPDATE</button>
+                            <button type="submit" class="btn btn-md btn-primary me-3">SIMPAN</button>
                             <a href="" class="btn btn-md btn-secondary">CANCEL</a>
                         </form>
                     </div>

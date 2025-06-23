@@ -12,37 +12,33 @@ class Hki extends Model
     protected $table = 'hki';
 
     protected $fillable = [
+        'ajuan_surat_id',
         'user_id',
+        'kode_surat_id',
         'namaPemegang',
         'alamat',
         'judul',
-        'inventor1',
-        'inventor2',
-        'inventor3',
-        'inventor4',
-        'inventor5',
-        'inventor6',
-        'inventor7',
-        'inventor8',
-        'inventor9',
-        'inventor10',
-        'bidangStudi1',
-        'bidangStudi2',
-        'bidangStudi3',
-        'bidangStudi4',
-        'bidangStudi5',
-        'bidangStudi6',
-        'bidangStudi7',
-        'bidangStudi8',
-        'bidangStudi9',
-        'bidangStudi10',
         'tanggal',
-        'statusSurat',
         'nomorSurat',
     ];
+    // Relasi ke tabel inventor
+    public function inventor()
+    {
+        return $this->hasMany(Inventor::class);
+    }
 
+    public function ajuanSurat()
+    {
+        return $this->belongsTo(AjuanSurat::class);
+    }
+
+    // Lewat relasi ini kamu juga bisa akses user:
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->ajuanSurat->user();
+    }
+    public function kodeSurat()
+    {
+        return $this->belongsTo(KodeSurat::class);
     }
 }

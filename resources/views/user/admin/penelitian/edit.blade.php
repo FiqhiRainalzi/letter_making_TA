@@ -1,5 +1,10 @@
 @extends('layouts.admin')
 @section('content')
+    @php
+        $nomorSurat = $penelitian->nomorSurat ?? '';
+        preg_match('/^(\d{3})/', $nomorSurat, $match);
+        $nomorUrut = $match[1] ?? '';
+    @endphp
     <div class="pagetitle">
         <h1>Surat Penelitian</h1>
         <nav>
@@ -15,33 +20,54 @@
             <div class="col-md-12">
                 <div class="card border-0 shadow-sm rounded">
                     <div class="card-body">
-                        <form action="{{ route('admin.penelitianUpdate', $penelitian->id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.penelitianUpdate', $penelitian->id) }}" method="POST"
+                            enctype="multipart/form-data">
                             <a href="{{ url()->previous() }}" class="btn btn-dark mb-3 mt-3">
                                 <i class="bi bi-arrow-left"></i> Kembali
                             </a>
                             @csrf
                             @method('PUT')
+                            <input type="hidden" name="dosen_id" value="{{ $penelitian->user_id }}">
+                            {{-- Pilih Kode Surat --}}
                             <div class="form-group mb-3">
-                                <input type="hidden" name="dosen_id" value="{{ $penelitian->user_id }}">
-                                <label class="font-weight-bold">Nomor Surat</label>
-                                <input type="text" class="form-control @error('nomorSurat') is-invalid @enderror"
-                                    name="nomorSurat" value="{{ old('nomorSurat', $penelitian->nomorSurat ?? '') }}"
-                                    placeholder="Masukkan Nomor Surat">
+                                <label class="font-weight-bold">Kode Surat</label>
+                                <select name="kode_surat_id" class="form-control" required>
+                                    <option value="">-- Pilih Kode Surat --</option>
+                                    @foreach ($kodeSurats as $kode)
+                                        <option value="{{ $kode->id }}"
+                                            {{ old('kode_surat_id', $penelitian->kode_surat_id) == $kode->id ? 'selected' : '' }}>
+                                            {{ $kode->kode_instansi }}{{ $kode->kode_layanan ? '/' . $kode->kode_layanan : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('kode_surat_id')
+                                    <div class="alert alert-danger mt-2">{{ $message }}</div>
+                                @enderror
 
-                                <!-- error message untuk title -->
+                            </div>
+
+                            {{-- NOMOR SURAT --}}
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Nomor Surat</label>
+                                <input type="number" class="form-control" name="nomorSurat"
+                                    value="{{ old('nomorSurat', $penelitian->nomorSurat) }}" required>
                                 @error('nomorSurat')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
-                                    </div>
+                                    <div class="alert alert-danger mt-2">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="form-group mb-3">
                                 <label for="statusSurat">Status</label>
-                                <select name="statusSurat" id="statusSurat" class="form-control">
-                                    <option value="pending" {{ $penelitian->statusSurat == 'pending' ? 'selected' : '' }}>Pending</option>
-                                    <option value="approved" {{ $penelitian->statusSurat == 'approved' ? 'selected' : '' }}>Approved
+                                <select name="status" id="status" class="form-control">
+                                    <option value="disetujui"
+                                        {{ $penelitian->ajuanSurat->status == 'disetujui' ? 'selected' : '' }}>Disetujui
                                     </option>
-                                    <option value="rejected" {{ $penelitian->statusSurat == 'rejected' ? 'selected' : '' }}>Rejected
+                                    <option value="siap diambil"
+                                        {{ $penelitian->ajuanSurat->status == 'siap diambil' ? 'selected' : '' }}>Siap
+                                        Diambil
+                                    </option>
+                                    <option value="sudah diambil"
+                                        {{ $penelitian->ajuanSurat->status == 'sudah diambil' ? 'selected' : '' }}>Sudah
+                                        Diambil
                                     </option>
                                 </select>
                             </div>

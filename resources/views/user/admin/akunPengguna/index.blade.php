@@ -1,10 +1,10 @@
 @extends('layouts.admin')
 @section('content')
     <div class="pagetitle">
-        <h1>Akun Pengguna</h1>
+        <h1>Daftar Akun Pengguna</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}">Beranda</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}">Home</a></li>
                 <li class="breadcrumb-item active">Akun Pengguna</li>
             </ol>
         </nav>
@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div>
-                    <h3 class="text-center my-1">Data Akun Pengguna</h3>
+                    <h3 class="text-center my-1">Daftar Akun Pengguna</h3>
                     <hr>
                 </div>
                 <div class="card">

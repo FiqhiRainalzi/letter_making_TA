@@ -10,50 +10,69 @@
             </ol>
         </nav>
     </div><!-- End Page Title -->
+
     <div class="container mt-5 mb-5">
         <div class="row">
             <div class="col-md-12">
                 <div class="card border-0 shadow-sm rounded">
                     <div class="card-body">
                         <form action="{{ route('admin.hkiUpdate', $hki->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+
                             <a href="{{ url()->previous() }}" class="btn btn-dark mb-3 mt-3">
                                 <i class="bi bi-arrow-left"></i> Kembali
                             </a>
-                            @csrf
-                            @method('PUT')
+
                             <input type="hidden" name="dosen_id" value="{{ $hki->user_id }}">
+
+                            {{-- Pilih Kode Surat --}}
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Kode Surat</label>
+                                <select name="kode_surat_id" class="form-control" required>
+                                    <option value="">-- Pilih Kode Surat --</option>
+                                    @foreach ($kodeSurats as $kode)
+                                        <option value="{{ $kode->id }}"
+                                            {{ old('kode_surat_id', $hki->kode_surat_id) == $kode->id ? 'selected' : '' }}>
+                                            {{ $kode->kode_instansi }}{{ $kode->kode_layanan ? '/' . $kode->kode_layanan : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('kode_surat_id')
+                                    <div class="alert alert-danger mt-2">{{ $message }}</div>
+                                @enderror
+
+                            </div>
+
+                            {{-- NOMOR SURAT --}}
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Nomor Surat</label>
-                                <input type="text" class="form-control @error('nomorSurat') is-invalid @enderror"
-                                    name="nomorSurat" value="{{ old('nomorSurat', $hki->nomorSurat ?? '') }}"
-                                    placeholder="Masukkan Nomor Surat">
-
+                                <input type="number" class="form-control" name="nomorSurat"
+                                    value="{{ old('nomorSurat', $hki->nomorSurat) }}" required>
                                 @error('nomorSurat')
-                                    <div class="alert alert-danger mt-2">
-                                        {{ $message }}
-                                    </div>
+                                    <div class="alert alert-danger mt-2">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="form-group mb-3">
-                                <label for="statusSurat">Status</label>
-                                <select name="statusSurat" id="statusSurat" class="form-control">
-                                    <option value="draft" {{ $hki->statusSurat == 'draft' ? 'selected' : '' }}>Draf
-                                    </option>
-                                    <option value="approved" {{ $hki->statusSurat == 'approved' ? 'selected' : '' }}>
-                                        DIterima</option>
-                                    <option value="ready_for_pickup"
-                                        {{ $hki->statusSurat == 'ready_for_pickup' ? 'selected' : '' }}>Siap Diambil
-                                    </option>
-                                    <option value="picked_up" {{ $hki->statusSurat == 'picked_up' ? 'selected' : '' }}>
-                                        Sudah Diambil</option>
-                                    <option value="rejected" {{ $hki->statusSurat == 'rejected' ? 'selected' : '' }}>
-                                        Ditolak</option>
-                                </select>
 
+                            {{-- STATUS --}}
+                            <div class="form-group mb-3">
+                                <label for="status" class="font-weight-bold">Status</label>
+                                <select name="status" id="status" class="form-control">
+                                    <option value="disetujui"
+                                        {{ $hki->ajuanSurat->status == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+                                    <option value="siap diambil"
+                                        {{ $hki->ajuanSurat->status == 'siap diambil' ? 'selected' : '' }}>Siap Diambil
+                                    </option>
+                                    <option value="sudah diambil"
+                                        {{ $hki->ajuanSurat->status == 'sudah diambil' ? 'selected' : '' }}>Sudah Diambil
+                                    </option>
+                                </select>
                             </div>
+
                             <button type="submit" class="btn btn-md btn-primary me-3">SAVE</button>
                             <button type="reset" class="btn btn-md btn-warning">RESET</button>
                         </form>
+
                     </div>
                 </div>
             </div>

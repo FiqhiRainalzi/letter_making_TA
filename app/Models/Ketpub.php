@@ -12,10 +12,10 @@ class Ketpub extends Model
     protected $table = 'ketpub';
     protected $fillable = [
         'judul',
+        'ajuan_surat_id',
         'user_id',
         'nomorSurat',
         'kategori_publikasi',
-        'statusSurat',
         'namaPenerbit',
         'penerbit',
         'jilid',
@@ -24,13 +24,26 @@ class Ketpub extends Model
         'issn',
         'tahun',
         'tanggal',
+        'kode_surat_id',
     ];
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+    public function ajuanSurat()
+    {
+        return $this->belongsTo(AjuanSurat::class);
+    }
+    public function prodi()
+    {
+        return $this->belongsTo(Prodi::class);
+    }
     public function penulis()
     {
         return $this->hasMany(Penulis::class);
+    }
+    public function kodeSurat()
+    {
+        return $this->belongsTo(KodeSurat::class);
     }
 }
