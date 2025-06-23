@@ -127,9 +127,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('pkmShow/{pkmShow}', [PkmController::class, 'show'])->name('admin.pkmShow');
     Route::get('pkmShow/{pkmShow}/download', [PkmController::class, 'downloadWord'])->name('admin.pkmDownload');
     //penelitian
-    Route::get('penelitianView', [Penelitian::class, 'verifikasiPenelitianView'])->name('admin.penelitianView');
-    Route::get('penelitianEdit/{penelitian}/edit', [Penelitian::class, 'verifikasiPenelitianEdit'])->name('admin.penelitianEdit');
-    Route::put('penelitianUpdate/{penelitian}', [Penelitian::class, 'verifikasiPenelitianUpdate'])->name('admin.penelitianUpdate');
+    Route::get('penelitianView', [PenelitianController::class, 'verifikasiPenelitianView'])->name('admin.penelitianView');
+    Route::get('penelitianEdit/{penelitian}/edit', [PenelitianController::class, 'verifikasiPenelitianEdit'])->name('admin.penelitianEdit');
+    Route::put('penelitianUpdate/{penelitian}', [PenelitianController::class, 'verifikasiPenelitianUpdate'])->name('admin.penelitianUpdate');
     Route::get('penelitianShow/{penelitianShow}', [PenelitianController::class, 'show'])->name('admin.penelitianShow');
     Route::get('penelitianShow/{penelitianShow}/download', [PenelitianController::class, 'downloadWord'])->name('admin.penelitianDownload');
     //ketpub
