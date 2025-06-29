@@ -39,6 +39,6 @@ class Hki extends Model
     }
     public function kodeSurat()
     {
-        return $this->belongsTo(KodeSurat::class);
+        return $this->belongsTo(KodeSurat::class,'kode_surat_id');
     }
 }

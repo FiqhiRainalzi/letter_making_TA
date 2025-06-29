@@ -133,7 +133,7 @@
                 <p style="margin-top: 3cm" class="center-text"><strong><em><u>SURAT KETERANGAN PERMOHONAN
                                 HKI</u></em></strong></p>
                 <p class="center-text">Nomor :
-                    {{ $hki->nomorSurat ?: '-' }}/{{ $hki->kodeSurat->kode_instansi}}/{{ $hki->kodeSurat->kode_layanan }}/{{ \Carbon\Carbon::parse($hki->tanggalPemHki)->translatedFormat('Y') }}
+                    {{ $hki->nomorSurat ?: '-' }}/{{ $hki->kodeSurat?->kode_instansi ?: '-' }}/{{ $hki->kodeSurat?->kode_layanan ?: '-' }}/{{ \Carbon\Carbon::parse($hki->tanggalPemHki)->translatedFormat('Y') }}
                 </p>
                 <p class="center-text">&nbsp;</p>
                 <p>Yang bertandatangan di bawah ini;</p>

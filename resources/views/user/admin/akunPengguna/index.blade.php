@@ -18,8 +18,9 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <a href="{{ route('admin.akunPenggunaCreate') }}" class="mt-2 btn btn-md btn btn-dark mb-3">Buat
-                            Akun Pengguna</a>
+                        <a href="{{ route('admin.akunPenggunaCreate') }}"class="btn btn-sm btn-success"><i
+                                class="bi bi-plus-circle"></i>
+                                Akun Pengguna</a>
                         <table class="table datatable">
                             <thead>
                                 <tr>

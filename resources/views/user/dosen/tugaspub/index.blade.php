@@ -18,8 +18,9 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <a href="{{ route('tugaspub.create') }}" class="mt-2 btn btn-md btn btn-dark mb-3">Buat Surat Tugas
-                            Publikasi</a>
+                        <a href="{{ route('tugaspub.create') }}" class="btn btn-sm btn-success"><i
+                                class="bi bi-plus-circle"></i> Buat Surat Tugas
+                                Publikasi</a>
                         <table class="table datatable">
                             <thead>
                                 <tr>

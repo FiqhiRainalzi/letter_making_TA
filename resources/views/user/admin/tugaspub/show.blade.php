@@ -88,7 +88,6 @@
             margin-top: -30px;
             /* Atur sesuai dengan kebutuhan */
         }
-
     </style>
 
     <body>
@@ -106,7 +105,8 @@
                     </span>&nbsp;
                 </p>
                 <p style="margin-top: 3cm" class="center-text"><strong><em><u>SURAT TUGAS</u></em></strong></p>
-                <p class="center-text">Nomor : {{ $tugaspub->nomorSurat ?: '-' }}/{{ \Carbon\Carbon::parse($tugaspub->tanggal)->translatedFormat('Y') }}</p>
+                <p class="center-text">Nomor :{{ $tugaspub->nomorSurat ?: '-' }}/{{ $tugaspub->kodeSurat?->kode_instansi ?: '-' }}/{{ $tugaspub->kodeSurat?->kode_layanan ?: '-' }}/{{ \Carbon\Carbon::parse($tugaspub->tanggal)->translatedFormat('Y') }}
+                </p>
                 <p class="center-text">&nbsp;</p>
                 <p>Yang bertandatangan di bawah ini;</p>
                 <table class="info-table">
@@ -146,7 +146,8 @@
                         @endforeach
                     </tbody>
                 </table>
-                <p class="justify-text">Untuk melaksanakan publikasi artikel ilmiah pada <strong>{{ $tugaspub->kategori_jurnal }}</strong>,
+                <p class="justify-text">Untuk melaksanakan publikasi artikel ilmiah pada
+                    <strong>{{ $tugaspub->kategori_jurnal }}</strong>,
                     dengan keterangan sebagai berikut:
                 </p>
 

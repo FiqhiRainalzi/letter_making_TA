@@ -18,7 +18,7 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <a href="{{ route('ketpub.create') }}" class="mt-2 btn btn-md btn btn-dark mb-3">Buat Surat
+                        <a href="{{ route('ketpub.create') }}" class="btn btn-sm btn-success"><i class="bi bi-plus-circle"></i> Buat Surat
                             Keterangan Publikasi</a>
                         <table class="table datatable">
                             <thead>

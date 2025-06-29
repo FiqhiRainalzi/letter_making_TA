@@ -102,7 +102,7 @@
                     </span>&nbsp;
                 </p>
                 <p style="margin-top: 3cm" class="center-text"><strong><em><u>SURAT TUGAS</u></em></strong></p>
-                <p class="center-text">Nomor : {{ $tugaspub->nomorSurat ?: '-' }}</p>
+                <p class="center-text">Nomor : {{ $tugaspub->nomorSurat ?: '-' }}/{{ $tugaspub->kodeSurat?->kode_instansi ?: '-' }}/{{ $tugaspub->kodeSurat?->kode_layanan ?: '-' }}/{{ \Carbon\Carbon::parse($tugaspub->tanggalPemHki)->translatedFormat('Y') }}</p>
                 <p class="center-text">&nbsp;</p>
                 <p>Yang bertandatangan di bawah ini;</p>
                 <table class="info-table">

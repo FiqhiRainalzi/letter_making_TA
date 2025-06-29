@@ -114,7 +114,9 @@
                     </span>&nbsp;
                 </p>
                 <p style="margin-top: 3cm" class="center-text"><strong><em><u>SURAT KETERANGAN</u></em></strong></p>
-                <p class="center-text">Nomor : {{ $ketpub->nomorSurat ?: '-' }}/{{ $year }}</p>
+                <p class="center-text">Nomor :
+                    {{ $ketpub->nomorSurat ?: '-' }}/{{ $ketpub->kodeSurat?->kode_instansi ?: '-' }}/{{ $ketpub->kodeSurat?->kode_layanan ?: '-' }}/{{ $year }}
+                </p>
                 <p class="center-text">&nbsp;</p>
                 <p>Yang bertandatangan di bawah ini;</p>
                 <table class="info-table">

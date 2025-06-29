@@ -29,12 +29,13 @@ class HkiController extends BaseController
         $user = Auth::user();
 
         // Mengambil data HKI yang terkait dengan user
-        $hki = Hki::where('user_id', $user->id)->get();
+        $hki = Hki::where('user_id', $user->id)->with('inventor')->get();
         $title = 'Surat HKI';
         $today = date('Y-m-d');
         //menghitung hari proses pengajuan
         $hki->transform(function ($item) {
-            if (in_array($item->statusSurat, ['approved', 'ready_to_pickup', 'picked_up', 'rejected'])) {
+            $status = $item->ajuanSurat?->status;
+            if (in_array($status, ['disetujui', 'siap diambil', 'sudah diambil', 'sudah ditandatangani'])){
                 $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::parse($item->updated_at));
             } else {
                 $item->lama_proses = Carbon::parse($item->created_at)->diffInDays(Carbon::now());
@@ -145,7 +146,7 @@ class HkiController extends BaseController
     public function show(string $id)
     {
         // Muat relasi 'user' dan 'inventors'
-        $hki = Hki::findOrFail($id);
+        $hki = Hki::with('kodeSurat')->findOrFail($id);
         $user = Auth::user();
         $title = 'Tampilan Surat HKI';
 

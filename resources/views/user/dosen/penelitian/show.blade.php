@@ -111,7 +111,7 @@
                 <p class="center-text"><strong>MELAKSANAKAN KEGIATAN PENELITIAN</strong></p>
                 <p class="center-text"><strong>BAGI DOSEN POLITEKNIK NEGERI CILACAP</strong></p>
                 <p class="center-text"><strong>Nomor :
-                        {{ $penelitian->nomorSurat ?: '-' }}/{{ \Carbon\Carbon::parse($penelitian->tanggal)->translatedFormat('Y') }}</strong>
+                       {{ $penelitian->nomorSurat ?: '-' }}/{{ $penelitian->kodeSurat?->kode_instansi ?: '-' }}/{{ $penelitian->kodeSurat?->kode_layanan ?: '-' }}/{{ \Carbon\Carbon::parse($penelitian->tanggal)->translatedFormat('Y') }}</strong>
                 </p>
                 <p class="center-text">&nbsp;</p>
                 <p class="justify-text" style="text-indent: 30px">Berdasarkan kewajiban Dosen dalam Tridharma Perguruan

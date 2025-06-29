@@ -37,19 +37,7 @@
                                         <td>{{ $h->created_at->translatedFormat('d F Y') }}</td>
                                         <td>{{ $h->inventor1 }}</td>
                                         <td>{{ $h->judul }}</td>
-                                        <td>
-                                            @if ($h->statusSurat == 'draft')
-                                                <span class="badge bg-secondary">Draf</span>
-                                            @elseif ($h->statusSurat == 'approved')
-                                                <span class="badge bg-success">Diterima</span>
-                                            @elseif ($h->statusSurat == 'ready_for_pickup')
-                                                <span class="badge bg-warning">Siap Diambil</span>
-                                            @elseif ($h->statusSurat == 'picked_up')
-                                                <span class="badge bg-success">Sudah Diambil</span>
-                                            @elseif ($h->statusSurat == 'rejected')
-                                                <span class="badge bg-danger">Ditolak</span>
-                                            @endif
-                                        </td>
+                                        <td>{{ $h->ajuanSurat->status }}</td>
                                         <td class="text-center">
                                             {{ floor($h->lama_proses) }} hari
                                         </td>

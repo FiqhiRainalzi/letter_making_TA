@@ -18,8 +18,9 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <a href="{{ route('prodi.create') }}" class="mt-2 btn btn-md btn btn-dark mb-3">Buat
-                            Program Studi</a>
+                        <a href="{{ route('prodi.create') }}" class="btn btn-sm btn-success"><i
+                                class="bi bi-plus-circle">>Buat
+                                Program Studi</a>
                         <table class="table datatable">
                             <thead>
                                 <tr>

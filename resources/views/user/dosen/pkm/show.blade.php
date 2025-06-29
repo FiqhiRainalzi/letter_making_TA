@@ -125,7 +125,7 @@
                 <p class="center-text"><strong>MELAKSANAKAN KEGIATAN PENGABDIAN KEPADA MASYARAKAT (PKM)</strong></p>
                 <p class="center-text"><strong>BAGI DOSEN POLITEKNIK NEGERI CILACAP</strong></p>
                 <p class="center-text"><strong>Nomor :
-                        {{ $pkm->nomorSurat ?: '-' }}/{{ \Carbon\Carbon::parse($pkm->tanggalPemHki)->translatedFormat('Y') }}</strong>
+                       {{ $pkm->nomorSurat ?: '-' }}/{{ $pkm->kodeSurat?->kode_instansi ?: '-' }}/{{ $pkm->kodeSurat?->kode_layanan ?: '-' }}/{{ \Carbon\Carbon::parse($pkm->tanggalPemHki)->translatedFormat('Y') }}</strong>
                 </p>
                 <p class="center-text">&nbsp;</p>
                 <p class="justify-text" style="text-indent: 30px">Berdasarkan kewajiban Dosen dalam Tridharma Perguruan

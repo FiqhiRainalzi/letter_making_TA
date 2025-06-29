@@ -18,7 +18,7 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <a href="{{ route('hki.create') }}" class="mt-2 btn btn-md btn btn-dark mb-3">Buat Surat HKI</a>
+                        <a href="{{ route('hki.create') }}" class="btn btn-sm btn-success"><i class="bi bi-plus-circle"></i> Buat Surat HKI</a>
                         <table class="table datatable">
                             <thead>
                                 <tr>
@@ -36,21 +36,9 @@
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $h->created_at->translatedFormat('d F Y') }}</td>
-                                        <td>{{ $h->inventor1 }}</td>
+                                        <td>{{ $h->inventor->first()->nama }}</td>
                                         <td>{{ $h->judul }}</td>
-                                        <td class="text-center">
-                                            @if ($h->statusSurat == 'draft')
-                                                <span class="badge bg-secondary">Draf</span>
-                                            @elseif ($h->statusSurat == 'approved')
-                                                <span class="badge bg-success">Diterima</span>
-                                            @elseif ($h->statusSurat == 'ready_for_pickup')
-                                                <span class="badge bg-warning">Siap Diambil</span>
-                                            @elseif ($h->statusSurat == 'picked_up')
-                                                <span class="badge bg-success">Sudah Diambil</span>
-                                            @elseif ($h->statusSurat == 'rejected')
-                                                <span class="badge bg-danger">Ditolak</span>
-                                            @endif
-                                        </td>
+                                        <td>{{ $h->ajuanSurat->status  ?? 'diajukan'  }}</td>                                        
                                         <td class="text-center">
                                             {{ floor($h->lama_proses) }} hari
                                         </td>
